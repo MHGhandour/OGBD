@@ -2,8 +2,10 @@
 # Functions
 #from tempfile import mkdtemp
 #import os.path as path
-import numpy as np
 
+#%% General functions
+from __future__ import division
+import numpy as np
 def LetLev(MainPts,arr):
         s=MainPts.shape[0];
         idx=np.zeros((s,),dtype=bool);
@@ -43,7 +45,7 @@ def Organize(Pts,level):
     4*MainPts[:,8]+5*MainPts[:,9]+6*MainPts[:,10]+7*MainPts[:,11]+8*MainPts[:,12];
     MainPts=np.delete(MainPts,range(5,13),axis=1)
     MainPts[:,0:3]=(MainPts[:,[0,1,2]]/(2**(-MainPts[:,[4]])*[[1,1,1]]))*2;
-    MainPts[:,0:3]=MainPts[:,0:3].astype(int);
+    MainPts[:,0:3]=np.round(MainPts[:,0:3]);
     MainPts[:,0:3]=MainPts[:,0:3].astype(float)/2;
     MainPts[:,0:3]=MainPts[:,0:3]*(2**(-MainPts[:,[4]])*[1,1,1])
     MainPts=SortRows(MainPts,2);
@@ -83,16 +85,21 @@ def YZIntervalId(YZPts):
 
 
 def Fill(Id_ref,s1,s2,axe,fILE):
-    max_ram=40*1024*1024;
+    max_ram=50*1024*1024*1024;   
     Apply = np.memmap(fILE, dtype='bool', mode='w+', shape=(s1,s2))
-    Apply[:]=False;
-    for i in range(0,s2):
-         Apply[Id_ref[0,i]:Id_ref[1,i]+1,i]=np.ones((1,Id_ref[1,i]-\
-         Id_ref[0,i]+1),dtype=bool);
-#    interval=np.int(max_ram/s1);
-    Apply=Apply[axe,:];
-#    for i in range(0,s2,interval):
-#        Apply[i:i+interval,:]=Apply[axe[i:i+interval],:];
+    if(s1*s2*2>max_ram):
+        print('RAM Constraint: Filling')
+        Apply = np.memmap(fILE, dtype='bool', mode='w+', shape=(s1,s2))
+        Apply[:]=False; 
+        for i in range(0,s2):
+         Apply[Id_ref[0,i]:Id_ref[1,i]+1,i]=1  
+         Apply[:,i]=Apply[axe,i]
+    else:
+        Apply2=np.zeros((s1,s2),dtype='bool');
+        for i in range(0,s2):
+            Apply2[Id_ref[0,i]:Id_ref[1,i]+1,i]=1 
+        Apply[:]=Apply2[axe,:]
+        
     return();
 
 
@@ -146,7 +153,7 @@ def Phases(Pts):
 
 
 
- #%%Alpha Function
+#%% Alpha Function
 def Decompose(Pts_in,XInterval):
 	s=Pts_in.shape[0];
 	#m=Pts_in[0,0];
@@ -173,8 +180,8 @@ def summation(A,J,K,s1,s2y,s2z):
     s2y,shape=(SX,s2y))
     Z_Apply = np.memmap('Zapply.dat', dtype='bool', mode='r+', offset=A[0,2]*\
     s2z,shape=(SX,s2z))
-    max_ram=20*1024*1024*1024;#I suppose i have only 40+GB to use
-    interval=np.int(max_ram/max(s2y,s2z));
+    max_ram=50*1024*1024*1024;#I suppose i have only 50GB to use
+    interval=min(np.int(max_ram/max(s2y,s2z))/2,np.int(max_ram/16));
     #print('Summation rows number:',SX);
     index_o=np.zeros((SX,1),dtype='bool');
     #print('test')
@@ -182,12 +189,12 @@ def summation(A,J,K,s1,s2y,s2z):
         YApp=np.zeros((SX,s2y),dtype='bool');
         ZApp=np.zeros((SX,s2z),dtype='bool');       
         YApp[:]=Y_Apply[:]
+        del Y_Apply
         ZApp[:]=Z_Apply[:]
-      #  try1=YApp[:,J];
-      #  try2=ZApp[:,K];
+        Z_Apply
         index_o[:,0]=np.sum((YApp[:,J]*ZApp[:,K]),axis=1)
     else:
-        print('RAM constraints >>>')
+        print('RAM constraints >>>,SX,sum_constr,size_constr',SX,np.int(max_ram/16),min(np.int(max_ram/max(s2y,s2z))))
         for i in range(0,SX,interval):
             YApp=np.zeros((min(SX-i,interval),s2y),dtype='bool');
             ZApp=np.zeros((min(SX-i,interval),s2z),dtype='bool');
