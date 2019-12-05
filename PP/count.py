@@ -7,7 +7,7 @@ Created on Wed May 22 05:32:34 2019
 """
 
 from Functions import np,initialize,Progressive,LAPS,time,Decompose,keepLv,Neighbouring
-for sim in [19100]:
+for sim in [18300,18400,18500,18900,20000]:
     #MainPts=np.load('/media/mhg/DATA/NPY/MainPts'+str(sim)+'.npy')
     #Gi_splash=np.load('/media/mhg/DATA/NPY/Gi_splash'+str(sim)+'.npy')
     MainPts=np.load('/media/mhg/DATA2/NPY/MainPts'+str(sim)+'.npy')

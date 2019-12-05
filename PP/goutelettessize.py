@@ -10,7 +10,7 @@ def CenterSize(droplet):
     
     
 
-for sim in range (35200,35250,100):
+for sim in range (19000,35200,100):
     #plt.figure()
     #MainPts=np.load('/media/mhg/DATA/datanoOil8/MainPts'+str(sim)+'.npy')
     #Gi_splash=np.load('/media/mhg/DATA/datanoOil8/Gi_splash'+str(sim)+'.npy')

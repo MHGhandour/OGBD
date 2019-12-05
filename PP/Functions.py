@@ -15,7 +15,7 @@ RAM_constraint=0
 
 
 def findlevel(Pts):
-    Lvl=np.zeros_like(Pts[:,[3,4,5]],dtype=int)
+    Lvl=Pts[:,[3,4,5]]
     Lvl[:]=10;
     x=Pts[:,0];y=Pts[:,1];z=Pts[:,2];
     Lvl[x%0.001953125==0,0]=8

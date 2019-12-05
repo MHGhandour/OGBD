@@ -14,7 +14,7 @@ import os.path
 print('\n CODE START >>>')
 from Functions import np,initialize,Progressive,LAPS,time,findlevel,remove_air
 #%% Main code
-for sim in [6800]:
+for sim in [18400,18500,18900,20000]:
     t0=time.time()
     #%%
     #Variables are level,T1,T0,T3,U,V,W,P,K1,DV
