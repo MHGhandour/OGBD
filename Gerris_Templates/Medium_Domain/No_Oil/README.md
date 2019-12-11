@@ -2,8 +2,12 @@
 ## Install Gerris Flow solver
 
 - If you have a Debian version, install it directly from the repository APT:
- 
- `sudo apt update && sudo apt install gerris gfsview`
+
+ `sudo apt update && sudo apt install gerris`
+
+*optional : install gfsview to visualize the results*
+
+ `sudo apt install gfsview`
 
 - If you have another distribution of GNU/Linux, refer to this [this link](http://gfs.sourceforge.net/wiki/index.php/Installing_from_source)
 
@@ -31,8 +35,8 @@ at certain time, for staying in the same reference use :
 `STEP=900` 
 
 then use this command to generate a .txt file :
- 
- `gerris3D -e "GfsOutputSimulation {istep =1 } step-$STEP.txt { format = text }" sim-$STEP-* > /dev/null`
+
+`gerris3D -e "GfsOutputSimulation {istep =1 } step-900.txt { format = text variables = T1,T0,T3,P,U,W,V }" sim-900-0.590684 > /dev/null` 
 
 ## Move the .txt file to the post process directory
 
