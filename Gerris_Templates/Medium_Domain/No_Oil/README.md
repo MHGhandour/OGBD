@@ -3,7 +3,7 @@
 
 - If you have a Debian version, install it directly from the repository APT:
  
- `sudo apt update && sudo apt install gerris gfsview3D`
+ `sudo apt update && sudo apt install gerris gfsview`
 
 - If you have another distribution of GNU/Linux, refer to this [this link](http://gfs.sourceforge.net/wiki/index.php/Installing_from_source)
 
