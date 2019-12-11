@@ -13,5 +13,5 @@ In the experiment, the domain have the dimension of 15.2 cm² by 8cm of height ,
 
 # Max level 
 
-a level corresponds to the power on with an initial box is divised by, here we have max level =11 which mean the most refined edge have the dimension of 6.4 mm  * 2⁻¹¹ = 3.125 µm
+A level corresponds to the power on with an initial box is divised by, here we have max level =11 which mean the most refined edge have the dimension of 6.4 mmx2⁻¹¹ = 3.125 µm
 ![Zoom in of the meshing, the smallest edge is 3.125 µm](image2.png)

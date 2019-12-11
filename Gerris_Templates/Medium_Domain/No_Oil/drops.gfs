@@ -1,0 +1,6138 @@
+# Gerris Flow Solver 3D version 1.3.2 (131206-155120)
+1620 4419 GfsSimulation GfsBox GfsGEdge {} {
+
+	Global {
+	    #define L_ref 0.0064
+	    #define DB 0.004/L_ref
+	    #define TH 0.0004/L_ref
+	    #define xz_D 0
+	    #define y_D (0.5*DB + 1.5*TH)
+	    #define HW 0
+	    #define R2(x,y,z) ( (x-xz_D)*(x-xz_D)*(4*4)/(4.3*4.3) + (z-xz_D)*(z-xz_D)*(4*4)/(4.3*4.3) + (y-y_D)*(y-y_D)*(4*4)/(3.8*3.8) )
+	    #define SIGMA_SW DB/3177
+	    #define SIGMA_W  DB/2911
+ 	    #define SIGMA_O  DB/7849
+ 	    #define RHO_AIR  1.2/1022
+ 	    #define RHO_SW   1
+ 	    #define RHO_W    1000/1022
+ 	    #define RHO_O    876/1022
+ 	    #define MU_W     DB/28800
+ 	    #define MU_AIR   MU_W*1.8e-5/1e-3
+ 	    #define MU_SW    MU_W*1.08
+ 	    #define MU_O     MU_W*0.0094/1e-3
+ 	    #define GR       1/(36*36*DB)
+ 	    #define RHO(T1,T3) ((1-CLAMP(T1,0,1)-CLAMP(T3,0,1))*RHO_AIR + CLAMP(T1,0,1)*RHO_W  + CLAMP(T3,0,1)*RHO_O)
+ 	    #define MU(T1,T3)   (MU_AIR*(1-T1-T3) + MU_W*T1 + MU_O*T3)
+		}
+
+
+	#################################################################################
+	#                         Definition du temps
+	#################################################################################
+	GfsTime {dtmax=1e-2 end = 1000}	#################################################################################
+	#                            Raffinement initial
+	#################################################################################
+	RefineSurface 8 (R2(x,y,z) - DB*DB/4)
+	RefineSurface 5 (y - HW)
+	RefineSurface 5  (y - HW - 2*TH )	##################################################################################
+	#                                 Traceur
+	##################################################################################
+	GfsVariableTracer T0
+	GfsVariableTracerVOF T1
+	GfsVariableFiltered T11 T1 1
+	GfsVariableCurvature K1 T1 Kmax1
+	GfsSourceTension T1 SIGMA_W K1	#################################################################################
+	#                                  Sources
+	#################################################################################
+	SourceViscosity  (MU(T1,0))
+	PhysicalParams { alpha = 1./RHO(T11,0) }
+	Source V -GR
+	##################################################################################
+	#                             Condition Initiales
+	##################################################################################
+	Init {} { U=0.0 W=0.0 }
+	Init {} {
+        T0 = (R2(x,y,z) < DB*DB/4 ? 1 : 0)
+	T1 = (R2(x,y,z) < DB*DB/4 ? 1 : y < HW ? 1 : 0)
+	T3 = 0
+	V  = (R2(x,y,z) < DB*DB/4 ? -1 : 0)
+  	  }
+	Init{ istep =1} {
+        Volume= (y<(0) && x<10 && x>(-10) && T1>=0 && T1 <1) ? dV : 0 
+        DV=ABS(Divergence)}
+
+
+	##################################################################################
+	#                       Adapt meshing + Event  Balance
+	##################################################################################
+
+
+        AdaptFunction { istart = 0  istep = 1} {
+		minlevel = 0
+		maxlevel = 4
+	    } (T1 > 0 && T1 < 1)
+	
+
+        AdaptFunction { istart = 0  istep = 1} {
+		minlevel = 0
+		maxlevel = 7
+	    } ( DV<0.01 ? 0 : (T1 > 0 && T1 < 1))
+	
+
+
+	   EventBalance { istep = 1 } 0.1
+
+	##################################################################################
+	#                                  OUTPUT
+	##################################################################################
+	   OutputTime { istep = 1 } TIME
+	   OutputBalance { istep = 3 } log
+	   OutputProjectionStats { istep = 3 } log
+	   OutputTiming { istep = 3 } log
+	#########################        GFS3D     ######################################
+	#OutputSimulation {istart=0 istep = 1 iend=30} test-%g.gfs
+#	GfsOutputSimulation { istart = 0 istep = 25 } snapshot-%05ld { binary = 1 variables=T1,T3,T0,P,U,V}
+	OutputSimulation { istep = 50 } sim-%ld-%g
+	##########################       Info      ######################################
+	GfsOutputScalarSum {istep =1} Vol {v=Volume w=(1-T1)}	
+		}
+
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+GfsBox {}
+1 2 right
+1 3 left
+1 10 front
+1 19 back
+1 82 top
+1 163 bottom
+2 4 right
+2 11 front
+2 20 back
+2 83 top
+2 164 bottom
+3 5 left
+3 12 front
+3 21 back
+3 84 top
+3 165 bottom
+4 6 right
+4 13 front
+4 22 back
+4 85 top
+4 166 bottom
+5 7 left
+5 14 front
+5 23 back
+5 86 top
+5 167 bottom
+6 8 right
+6 15 front
+6 24 back
+6 87 top
+6 168 bottom
+7 9 left
+7 16 front
+7 25 back
+7 88 top
+7 169 bottom
+8 17 front
+8 26 back
+8 89 top
+8 170 bottom
+9 18 front
+9 27 back
+9 90 top
+9 171 bottom
+10 11 right
+10 12 left
+10 28 front
+10 91 top
+10 172 bottom
+11 13 right
+11 29 front
+11 92 top
+11 173 bottom
+12 14 left
+12 30 front
+12 93 top
+12 174 bottom
+13 15 right
+13 31 front
+13 94 top
+13 175 bottom
+14 16 left
+14 32 front
+14 95 top
+14 176 bottom
+15 17 right
+15 33 front
+15 96 top
+15 177 bottom
+16 18 left
+16 34 front
+16 97 top
+16 178 bottom
+17 35 front
+17 98 top
+17 179 bottom
+18 36 front
+18 99 top
+18 180 bottom
+19 20 right
+19 21 left
+19 37 back
+19 100 top
+19 181 bottom
+20 22 right
+20 38 back
+20 101 top
+20 182 bottom
+21 23 left
+21 39 back
+21 102 top
+21 183 bottom
+22 24 right
+22 40 back
+22 103 top
+22 184 bottom
+23 25 left
+23 41 back
+23 104 top
+23 185 bottom
+24 26 right
+24 42 back
+24 105 top
+24 186 bottom
+25 27 left
+25 43 back
+25 106 top
+25 187 bottom
+26 44 back
+26 107 top
+26 188 bottom
+27 45 back
+27 108 top
+27 189 bottom
+28 29 right
+28 30 left
+28 46 front
+28 109 top
+28 190 bottom
+29 31 right
+29 47 front
+29 110 top
+29 191 bottom
+30 32 left
+30 48 front
+30 111 top
+30 192 bottom
+31 33 right
+31 49 front
+31 112 top
+31 193 bottom
+32 34 left
+32 50 front
+32 113 top
+32 194 bottom
+33 35 right
+33 51 front
+33 114 top
+33 195 bottom
+34 36 left
+34 52 front
+34 115 top
+34 196 bottom
+35 53 front
+35 116 top
+35 197 bottom
+36 54 front
+36 117 top
+36 198 bottom
+37 38 right
+37 39 left
+37 55 back
+37 118 top
+37 199 bottom
+38 40 right
+38 56 back
+38 119 top
+38 200 bottom
+39 41 left
+39 57 back
+39 120 top
+39 201 bottom
+40 42 right
+40 58 back
+40 121 top
+40 202 bottom
+41 43 left
+41 59 back
+41 122 top
+41 203 bottom
+42 44 right
+42 60 back
+42 123 top
+42 204 bottom
+43 45 left
+43 61 back
+43 124 top
+43 205 bottom
+44 62 back
+44 125 top
+44 206 bottom
+45 63 back
+45 126 top
+45 207 bottom
+46 47 right
+46 48 left
+46 64 front
+46 127 top
+46 208 bottom
+47 49 right
+47 65 front
+47 128 top
+47 209 bottom
+48 50 left
+48 66 front
+48 129 top
+48 210 bottom
+49 51 right
+49 67 front
+49 130 top
+49 211 bottom
+50 52 left
+50 68 front
+50 131 top
+50 212 bottom
+51 53 right
+51 69 front
+51 132 top
+51 213 bottom
+52 54 left
+52 70 front
+52 133 top
+52 214 bottom
+53 71 front
+53 134 top
+53 215 bottom
+54 72 front
+54 135 top
+54 216 bottom
+55 56 right
+55 57 left
+55 73 back
+55 136 top
+55 217 bottom
+56 58 right
+56 74 back
+56 137 top
+56 218 bottom
+57 59 left
+57 75 back
+57 138 top
+57 219 bottom
+58 60 right
+58 76 back
+58 139 top
+58 220 bottom
+59 61 left
+59 77 back
+59 140 top
+59 221 bottom
+60 62 right
+60 78 back
+60 141 top
+60 222 bottom
+61 63 left
+61 79 back
+61 142 top
+61 223 bottom
+62 80 back
+62 143 top
+62 224 bottom
+63 81 back
+63 144 top
+63 225 bottom
+64 65 right
+64 66 left
+64 145 top
+64 226 bottom
+65 67 right
+65 146 top
+65 227 bottom
+66 68 left
+66 147 top
+66 228 bottom
+67 69 right
+67 148 top
+67 229 bottom
+68 70 left
+68 149 top
+68 230 bottom
+69 71 right
+69 150 top
+69 231 bottom
+70 72 left
+70 151 top
+70 232 bottom
+71 152 top
+71 233 bottom
+72 153 top
+72 234 bottom
+73 74 right
+73 75 left
+73 154 top
+73 235 bottom
+74 76 right
+74 155 top
+74 236 bottom
+75 77 left
+75 156 top
+75 237 bottom
+76 78 right
+76 157 top
+76 238 bottom
+77 79 left
+77 158 top
+77 239 bottom
+78 80 right
+78 159 top
+78 240 bottom
+79 81 left
+79 160 top
+79 241 bottom
+80 161 top
+80 242 bottom
+81 162 top
+81 243 bottom
+82 83 right
+82 84 left
+82 91 front
+82 100 back
+82 244 top
+83 85 right
+83 92 front
+83 101 back
+83 245 top
+84 86 left
+84 93 front
+84 102 back
+84 246 top
+85 87 right
+85 94 front
+85 103 back
+85 247 top
+86 88 left
+86 95 front
+86 104 back
+86 248 top
+87 89 right
+87 96 front
+87 105 back
+87 249 top
+88 90 left
+88 97 front
+88 106 back
+88 250 top
+89 98 front
+89 107 back
+89 251 top
+90 99 front
+90 108 back
+90 252 top
+91 92 right
+91 93 left
+91 109 front
+91 253 top
+92 94 right
+92 110 front
+92 254 top
+93 95 left
+93 111 front
+93 255 top
+94 96 right
+94 112 front
+94 256 top
+95 97 left
+95 113 front
+95 257 top
+96 98 right
+96 114 front
+96 258 top
+97 99 left
+97 115 front
+97 259 top
+98 116 front
+98 260 top
+99 117 front
+99 261 top
+100 101 right
+100 102 left
+100 118 back
+100 262 top
+101 103 right
+101 119 back
+101 263 top
+102 104 left
+102 120 back
+102 264 top
+103 105 right
+103 121 back
+103 265 top
+104 106 left
+104 122 back
+104 266 top
+105 107 right
+105 123 back
+105 267 top
+106 108 left
+106 124 back
+106 268 top
+107 125 back
+107 269 top
+108 126 back
+108 270 top
+109 110 right
+109 111 left
+109 127 front
+109 271 top
+110 112 right
+110 128 front
+110 272 top
+111 113 left
+111 129 front
+111 273 top
+112 114 right
+112 130 front
+112 274 top
+113 115 left
+113 131 front
+113 275 top
+114 116 right
+114 132 front
+114 276 top
+115 117 left
+115 133 front
+115 277 top
+116 134 front
+116 278 top
+117 135 front
+117 279 top
+118 119 right
+118 120 left
+118 136 back
+118 280 top
+119 121 right
+119 137 back
+119 281 top
+120 122 left
+120 138 back
+120 282 top
+121 123 right
+121 139 back
+121 283 top
+122 124 left
+122 140 back
+122 284 top
+123 125 right
+123 141 back
+123 285 top
+124 126 left
+124 142 back
+124 286 top
+125 143 back
+125 287 top
+126 144 back
+126 288 top
+127 128 right
+127 129 left
+127 145 front
+127 289 top
+128 130 right
+128 146 front
+128 290 top
+129 131 left
+129 147 front
+129 291 top
+130 132 right
+130 148 front
+130 292 top
+131 133 left
+131 149 front
+131 293 top
+132 134 right
+132 150 front
+132 294 top
+133 135 left
+133 151 front
+133 295 top
+134 152 front
+134 296 top
+135 153 front
+135 297 top
+136 137 right
+136 138 left
+136 154 back
+136 298 top
+137 139 right
+137 155 back
+137 299 top
+138 140 left
+138 156 back
+138 300 top
+139 141 right
+139 157 back
+139 301 top
+140 142 left
+140 158 back
+140 302 top
+141 143 right
+141 159 back
+141 303 top
+142 144 left
+142 160 back
+142 304 top
+143 161 back
+143 305 top
+144 162 back
+144 306 top
+145 146 right
+145 147 left
+145 307 top
+146 148 right
+146 308 top
+147 149 left
+147 309 top
+148 150 right
+148 310 top
+149 151 left
+149 311 top
+150 152 right
+150 312 top
+151 153 left
+151 313 top
+152 314 top
+153 315 top
+154 155 right
+154 156 left
+154 316 top
+155 157 right
+155 317 top
+156 158 left
+156 318 top
+157 159 right
+157 319 top
+158 160 left
+158 320 top
+159 161 right
+159 321 top
+160 162 left
+160 322 top
+161 323 top
+162 324 top
+163 164 right
+163 165 left
+163 172 front
+163 181 back
+163 325 bottom
+164 166 right
+164 173 front
+164 182 back
+164 326 bottom
+165 167 left
+165 174 front
+165 183 back
+165 327 bottom
+166 168 right
+166 175 front
+166 184 back
+166 328 bottom
+167 169 left
+167 176 front
+167 185 back
+167 329 bottom
+168 170 right
+168 177 front
+168 186 back
+168 330 bottom
+169 171 left
+169 178 front
+169 187 back
+169 331 bottom
+170 179 front
+170 188 back
+170 332 bottom
+171 180 front
+171 189 back
+171 333 bottom
+172 173 right
+172 174 left
+172 190 front
+172 334 bottom
+173 175 right
+173 191 front
+173 335 bottom
+174 176 left
+174 192 front
+174 336 bottom
+175 177 right
+175 193 front
+175 337 bottom
+176 178 left
+176 194 front
+176 338 bottom
+177 179 right
+177 195 front
+177 339 bottom
+178 180 left
+178 196 front
+178 340 bottom
+179 197 front
+179 341 bottom
+180 198 front
+180 342 bottom
+181 182 right
+181 183 left
+181 199 back
+181 343 bottom
+182 184 right
+182 200 back
+182 344 bottom
+183 185 left
+183 201 back
+183 345 bottom
+184 186 right
+184 202 back
+184 346 bottom
+185 187 left
+185 203 back
+185 347 bottom
+186 188 right
+186 204 back
+186 348 bottom
+187 189 left
+187 205 back
+187 349 bottom
+188 206 back
+188 350 bottom
+189 207 back
+189 351 bottom
+190 191 right
+190 192 left
+190 208 front
+190 352 bottom
+191 193 right
+191 209 front
+191 353 bottom
+192 194 left
+192 210 front
+192 354 bottom
+193 195 right
+193 211 front
+193 355 bottom
+194 196 left
+194 212 front
+194 356 bottom
+195 197 right
+195 213 front
+195 357 bottom
+196 198 left
+196 214 front
+196 358 bottom
+197 215 front
+197 359 bottom
+198 216 front
+198 360 bottom
+199 200 right
+199 201 left
+199 217 back
+199 361 bottom
+200 202 right
+200 218 back
+200 362 bottom
+201 203 left
+201 219 back
+201 363 bottom
+202 204 right
+202 220 back
+202 364 bottom
+203 205 left
+203 221 back
+203 365 bottom
+204 206 right
+204 222 back
+204 366 bottom
+205 207 left
+205 223 back
+205 367 bottom
+206 224 back
+206 368 bottom
+207 225 back
+207 369 bottom
+208 209 right
+208 210 left
+208 226 front
+208 370 bottom
+209 211 right
+209 227 front
+209 371 bottom
+210 212 left
+210 228 front
+210 372 bottom
+211 213 right
+211 229 front
+211 373 bottom
+212 214 left
+212 230 front
+212 374 bottom
+213 215 right
+213 231 front
+213 375 bottom
+214 216 left
+214 232 front
+214 376 bottom
+215 233 front
+215 377 bottom
+216 234 front
+216 378 bottom
+217 218 right
+217 219 left
+217 235 back
+217 379 bottom
+218 220 right
+218 236 back
+218 380 bottom
+219 221 left
+219 237 back
+219 381 bottom
+220 222 right
+220 238 back
+220 382 bottom
+221 223 left
+221 239 back
+221 383 bottom
+222 224 right
+222 240 back
+222 384 bottom
+223 225 left
+223 241 back
+223 385 bottom
+224 242 back
+224 386 bottom
+225 243 back
+225 387 bottom
+226 227 right
+226 228 left
+226 388 bottom
+227 229 right
+227 389 bottom
+228 230 left
+228 390 bottom
+229 231 right
+229 391 bottom
+230 232 left
+230 392 bottom
+231 233 right
+231 393 bottom
+232 234 left
+232 394 bottom
+233 395 bottom
+234 396 bottom
+235 236 right
+235 237 left
+235 397 bottom
+236 238 right
+236 398 bottom
+237 239 left
+237 399 bottom
+238 240 right
+238 400 bottom
+239 241 left
+239 401 bottom
+240 242 right
+240 402 bottom
+241 243 left
+241 403 bottom
+242 404 bottom
+243 405 bottom
+244 245 right
+244 246 left
+244 253 front
+244 262 back
+244 406 top
+245 247 right
+245 254 front
+245 263 back
+245 407 top
+246 248 left
+246 255 front
+246 264 back
+246 408 top
+247 249 right
+247 256 front
+247 265 back
+247 409 top
+248 250 left
+248 257 front
+248 266 back
+248 410 top
+249 251 right
+249 258 front
+249 267 back
+249 411 top
+250 252 left
+250 259 front
+250 268 back
+250 412 top
+251 260 front
+251 269 back
+251 413 top
+252 261 front
+252 270 back
+252 414 top
+253 254 right
+253 255 left
+253 271 front
+253 415 top
+254 256 right
+254 272 front
+254 416 top
+255 257 left
+255 273 front
+255 417 top
+256 258 right
+256 274 front
+256 418 top
+257 259 left
+257 275 front
+257 419 top
+258 260 right
+258 276 front
+258 420 top
+259 261 left
+259 277 front
+259 421 top
+260 278 front
+260 422 top
+261 279 front
+261 423 top
+262 263 right
+262 264 left
+262 280 back
+262 424 top
+263 265 right
+263 281 back
+263 425 top
+264 266 left
+264 282 back
+264 426 top
+265 267 right
+265 283 back
+265 427 top
+266 268 left
+266 284 back
+266 428 top
+267 269 right
+267 285 back
+267 429 top
+268 270 left
+268 286 back
+268 430 top
+269 287 back
+269 431 top
+270 288 back
+270 432 top
+271 272 right
+271 273 left
+271 289 front
+271 433 top
+272 274 right
+272 290 front
+272 434 top
+273 275 left
+273 291 front
+273 435 top
+274 276 right
+274 292 front
+274 436 top
+275 277 left
+275 293 front
+275 437 top
+276 278 right
+276 294 front
+276 438 top
+277 279 left
+277 295 front
+277 439 top
+278 296 front
+278 440 top
+279 297 front
+279 441 top
+280 281 right
+280 282 left
+280 298 back
+280 442 top
+281 283 right
+281 299 back
+281 443 top
+282 284 left
+282 300 back
+282 444 top
+283 285 right
+283 301 back
+283 445 top
+284 286 left
+284 302 back
+284 446 top
+285 287 right
+285 303 back
+285 447 top
+286 288 left
+286 304 back
+286 448 top
+287 305 back
+287 449 top
+288 306 back
+288 450 top
+289 290 right
+289 291 left
+289 307 front
+289 451 top
+290 292 right
+290 308 front
+290 452 top
+291 293 left
+291 309 front
+291 453 top
+292 294 right
+292 310 front
+292 454 top
+293 295 left
+293 311 front
+293 455 top
+294 296 right
+294 312 front
+294 456 top
+295 297 left
+295 313 front
+295 457 top
+296 314 front
+296 458 top
+297 315 front
+297 459 top
+298 299 right
+298 300 left
+298 316 back
+298 460 top
+299 301 right
+299 317 back
+299 461 top
+300 302 left
+300 318 back
+300 462 top
+301 303 right
+301 319 back
+301 463 top
+302 304 left
+302 320 back
+302 464 top
+303 305 right
+303 321 back
+303 465 top
+304 306 left
+304 322 back
+304 466 top
+305 323 back
+305 467 top
+306 324 back
+306 468 top
+307 308 right
+307 309 left
+307 469 top
+308 310 right
+308 470 top
+309 311 left
+309 471 top
+310 312 right
+310 472 top
+311 313 left
+311 473 top
+312 314 right
+312 474 top
+313 315 left
+313 475 top
+314 476 top
+315 477 top
+316 317 right
+316 318 left
+316 478 top
+317 319 right
+317 479 top
+318 320 left
+318 480 top
+319 321 right
+319 481 top
+320 322 left
+320 482 top
+321 323 right
+321 483 top
+322 324 left
+322 484 top
+323 485 top
+324 486 top
+325 326 right
+325 327 left
+325 334 front
+325 343 back
+325 487 bottom
+326 328 right
+326 335 front
+326 344 back
+326 488 bottom
+327 329 left
+327 336 front
+327 345 back
+327 489 bottom
+328 330 right
+328 337 front
+328 346 back
+328 490 bottom
+329 331 left
+329 338 front
+329 347 back
+329 491 bottom
+330 332 right
+330 339 front
+330 348 back
+330 492 bottom
+331 333 left
+331 340 front
+331 349 back
+331 493 bottom
+332 341 front
+332 350 back
+332 494 bottom
+333 342 front
+333 351 back
+333 495 bottom
+334 335 right
+334 336 left
+334 352 front
+334 496 bottom
+335 337 right
+335 353 front
+335 497 bottom
+336 338 left
+336 354 front
+336 498 bottom
+337 339 right
+337 355 front
+337 499 bottom
+338 340 left
+338 356 front
+338 500 bottom
+339 341 right
+339 357 front
+339 501 bottom
+340 342 left
+340 358 front
+340 502 bottom
+341 359 front
+341 503 bottom
+342 360 front
+342 504 bottom
+343 344 right
+343 345 left
+343 361 back
+343 505 bottom
+344 346 right
+344 362 back
+344 506 bottom
+345 347 left
+345 363 back
+345 507 bottom
+346 348 right
+346 364 back
+346 508 bottom
+347 349 left
+347 365 back
+347 509 bottom
+348 350 right
+348 366 back
+348 510 bottom
+349 351 left
+349 367 back
+349 511 bottom
+350 368 back
+350 512 bottom
+351 369 back
+351 513 bottom
+352 353 right
+352 354 left
+352 370 front
+352 514 bottom
+353 355 right
+353 371 front
+353 515 bottom
+354 356 left
+354 372 front
+354 516 bottom
+355 357 right
+355 373 front
+355 517 bottom
+356 358 left
+356 374 front
+356 518 bottom
+357 359 right
+357 375 front
+357 519 bottom
+358 360 left
+358 376 front
+358 520 bottom
+359 377 front
+359 521 bottom
+360 378 front
+360 522 bottom
+361 362 right
+361 363 left
+361 379 back
+361 523 bottom
+362 364 right
+362 380 back
+362 524 bottom
+363 365 left
+363 381 back
+363 525 bottom
+364 366 right
+364 382 back
+364 526 bottom
+365 367 left
+365 383 back
+365 527 bottom
+366 368 right
+366 384 back
+366 528 bottom
+367 369 left
+367 385 back
+367 529 bottom
+368 386 back
+368 530 bottom
+369 387 back
+369 531 bottom
+370 371 right
+370 372 left
+370 388 front
+370 532 bottom
+371 373 right
+371 389 front
+371 533 bottom
+372 374 left
+372 390 front
+372 534 bottom
+373 375 right
+373 391 front
+373 535 bottom
+374 376 left
+374 392 front
+374 536 bottom
+375 377 right
+375 393 front
+375 537 bottom
+376 378 left
+376 394 front
+376 538 bottom
+377 395 front
+377 539 bottom
+378 396 front
+378 540 bottom
+379 380 right
+379 381 left
+379 397 back
+379 541 bottom
+380 382 right
+380 398 back
+380 542 bottom
+381 383 left
+381 399 back
+381 543 bottom
+382 384 right
+382 400 back
+382 544 bottom
+383 385 left
+383 401 back
+383 545 bottom
+384 386 right
+384 402 back
+384 546 bottom
+385 387 left
+385 403 back
+385 547 bottom
+386 404 back
+386 548 bottom
+387 405 back
+387 549 bottom
+388 389 right
+388 390 left
+388 550 bottom
+389 391 right
+389 551 bottom
+390 392 left
+390 552 bottom
+391 393 right
+391 553 bottom
+392 394 left
+392 554 bottom
+393 395 right
+393 555 bottom
+394 396 left
+394 556 bottom
+395 557 bottom
+396 558 bottom
+397 398 right
+397 399 left
+397 559 bottom
+398 400 right
+398 560 bottom
+399 401 left
+399 561 bottom
+400 402 right
+400 562 bottom
+401 403 left
+401 563 bottom
+402 404 right
+402 564 bottom
+403 405 left
+403 565 bottom
+404 566 bottom
+405 567 bottom
+406 407 right
+406 408 left
+406 415 front
+406 424 back
+406 568 top
+407 409 right
+407 416 front
+407 425 back
+407 569 top
+408 410 left
+408 417 front
+408 426 back
+408 570 top
+409 411 right
+409 418 front
+409 427 back
+409 571 top
+410 412 left
+410 419 front
+410 428 back
+410 572 top
+411 413 right
+411 420 front
+411 429 back
+411 573 top
+412 414 left
+412 421 front
+412 430 back
+412 574 top
+413 422 front
+413 431 back
+413 575 top
+414 423 front
+414 432 back
+414 576 top
+415 416 right
+415 417 left
+415 433 front
+415 577 top
+416 418 right
+416 434 front
+416 578 top
+417 419 left
+417 435 front
+417 579 top
+418 420 right
+418 436 front
+418 580 top
+419 421 left
+419 437 front
+419 581 top
+420 422 right
+420 438 front
+420 582 top
+421 423 left
+421 439 front
+421 583 top
+422 440 front
+422 584 top
+423 441 front
+423 585 top
+424 425 right
+424 426 left
+424 442 back
+424 586 top
+425 427 right
+425 443 back
+425 587 top
+426 428 left
+426 444 back
+426 588 top
+427 429 right
+427 445 back
+427 589 top
+428 430 left
+428 446 back
+428 590 top
+429 431 right
+429 447 back
+429 591 top
+430 432 left
+430 448 back
+430 592 top
+431 449 back
+431 593 top
+432 450 back
+432 594 top
+433 434 right
+433 435 left
+433 451 front
+433 595 top
+434 436 right
+434 452 front
+434 596 top
+435 437 left
+435 453 front
+435 597 top
+436 438 right
+436 454 front
+436 598 top
+437 439 left
+437 455 front
+437 599 top
+438 440 right
+438 456 front
+438 600 top
+439 441 left
+439 457 front
+439 601 top
+440 458 front
+440 602 top
+441 459 front
+441 603 top
+442 443 right
+442 444 left
+442 460 back
+442 604 top
+443 445 right
+443 461 back
+443 605 top
+444 446 left
+444 462 back
+444 606 top
+445 447 right
+445 463 back
+445 607 top
+446 448 left
+446 464 back
+446 608 top
+447 449 right
+447 465 back
+447 609 top
+448 450 left
+448 466 back
+448 610 top
+449 467 back
+449 611 top
+450 468 back
+450 612 top
+451 452 right
+451 453 left
+451 469 front
+451 613 top
+452 454 right
+452 470 front
+452 614 top
+453 455 left
+453 471 front
+453 615 top
+454 456 right
+454 472 front
+454 616 top
+455 457 left
+455 473 front
+455 617 top
+456 458 right
+456 474 front
+456 618 top
+457 459 left
+457 475 front
+457 619 top
+458 476 front
+458 620 top
+459 477 front
+459 621 top
+460 461 right
+460 462 left
+460 478 back
+460 622 top
+461 463 right
+461 479 back
+461 623 top
+462 464 left
+462 480 back
+462 624 top
+463 465 right
+463 481 back
+463 625 top
+464 466 left
+464 482 back
+464 626 top
+465 467 right
+465 483 back
+465 627 top
+466 468 left
+466 484 back
+466 628 top
+467 485 back
+467 629 top
+468 486 back
+468 630 top
+469 470 right
+469 471 left
+469 631 top
+470 472 right
+470 632 top
+471 473 left
+471 633 top
+472 474 right
+472 634 top
+473 475 left
+473 635 top
+474 476 right
+474 636 top
+475 477 left
+475 637 top
+476 638 top
+477 639 top
+478 479 right
+478 480 left
+478 640 top
+479 481 right
+479 641 top
+480 482 left
+480 642 top
+481 483 right
+481 643 top
+482 484 left
+482 644 top
+483 485 right
+483 645 top
+484 486 left
+484 646 top
+485 647 top
+486 648 top
+487 488 right
+487 489 left
+487 496 front
+487 505 back
+487 649 bottom
+488 490 right
+488 497 front
+488 506 back
+488 650 bottom
+489 491 left
+489 498 front
+489 507 back
+489 651 bottom
+490 492 right
+490 499 front
+490 508 back
+490 652 bottom
+491 493 left
+491 500 front
+491 509 back
+491 653 bottom
+492 494 right
+492 501 front
+492 510 back
+492 654 bottom
+493 495 left
+493 502 front
+493 511 back
+493 655 bottom
+494 503 front
+494 512 back
+494 656 bottom
+495 504 front
+495 513 back
+495 657 bottom
+496 497 right
+496 498 left
+496 514 front
+496 658 bottom
+497 499 right
+497 515 front
+497 659 bottom
+498 500 left
+498 516 front
+498 660 bottom
+499 501 right
+499 517 front
+499 661 bottom
+500 502 left
+500 518 front
+500 662 bottom
+501 503 right
+501 519 front
+501 663 bottom
+502 504 left
+502 520 front
+502 664 bottom
+503 521 front
+503 665 bottom
+504 522 front
+504 666 bottom
+505 506 right
+505 507 left
+505 523 back
+505 667 bottom
+506 508 right
+506 524 back
+506 668 bottom
+507 509 left
+507 525 back
+507 669 bottom
+508 510 right
+508 526 back
+508 670 bottom
+509 511 left
+509 527 back
+509 671 bottom
+510 512 right
+510 528 back
+510 672 bottom
+511 513 left
+511 529 back
+511 673 bottom
+512 530 back
+512 674 bottom
+513 531 back
+513 675 bottom
+514 515 right
+514 516 left
+514 532 front
+514 676 bottom
+515 517 right
+515 533 front
+515 677 bottom
+516 518 left
+516 534 front
+516 678 bottom
+517 519 right
+517 535 front
+517 679 bottom
+518 520 left
+518 536 front
+518 680 bottom
+519 521 right
+519 537 front
+519 681 bottom
+520 522 left
+520 538 front
+520 682 bottom
+521 539 front
+521 683 bottom
+522 540 front
+522 684 bottom
+523 524 right
+523 525 left
+523 541 back
+523 685 bottom
+524 526 right
+524 542 back
+524 686 bottom
+525 527 left
+525 543 back
+525 687 bottom
+526 528 right
+526 544 back
+526 688 bottom
+527 529 left
+527 545 back
+527 689 bottom
+528 530 right
+528 546 back
+528 690 bottom
+529 531 left
+529 547 back
+529 691 bottom
+530 548 back
+530 692 bottom
+531 549 back
+531 693 bottom
+532 533 right
+532 534 left
+532 550 front
+532 694 bottom
+533 535 right
+533 551 front
+533 695 bottom
+534 536 left
+534 552 front
+534 696 bottom
+535 537 right
+535 553 front
+535 697 bottom
+536 538 left
+536 554 front
+536 698 bottom
+537 539 right
+537 555 front
+537 699 bottom
+538 540 left
+538 556 front
+538 700 bottom
+539 557 front
+539 701 bottom
+540 558 front
+540 702 bottom
+541 542 right
+541 543 left
+541 559 back
+541 703 bottom
+542 544 right
+542 560 back
+542 704 bottom
+543 545 left
+543 561 back
+543 705 bottom
+544 546 right
+544 562 back
+544 706 bottom
+545 547 left
+545 563 back
+545 707 bottom
+546 548 right
+546 564 back
+546 708 bottom
+547 549 left
+547 565 back
+547 709 bottom
+548 566 back
+548 710 bottom
+549 567 back
+549 711 bottom
+550 551 right
+550 552 left
+550 712 bottom
+551 553 right
+551 713 bottom
+552 554 left
+552 714 bottom
+553 555 right
+553 715 bottom
+554 556 left
+554 716 bottom
+555 557 right
+555 717 bottom
+556 558 left
+556 718 bottom
+557 719 bottom
+558 720 bottom
+559 560 right
+559 561 left
+559 721 bottom
+560 562 right
+560 722 bottom
+561 563 left
+561 723 bottom
+562 564 right
+562 724 bottom
+563 565 left
+563 725 bottom
+564 566 right
+564 726 bottom
+565 567 left
+565 727 bottom
+566 728 bottom
+567 729 bottom
+568 569 right
+568 570 left
+568 577 front
+568 586 back
+568 730 top
+569 571 right
+569 578 front
+569 587 back
+569 731 top
+570 572 left
+570 579 front
+570 588 back
+570 732 top
+571 573 right
+571 580 front
+571 589 back
+571 733 top
+572 574 left
+572 581 front
+572 590 back
+572 734 top
+573 575 right
+573 582 front
+573 591 back
+573 735 top
+574 576 left
+574 583 front
+574 592 back
+574 736 top
+575 584 front
+575 593 back
+575 737 top
+576 585 front
+576 594 back
+576 738 top
+577 578 right
+577 579 left
+577 595 front
+577 739 top
+578 580 right
+578 596 front
+578 740 top
+579 581 left
+579 597 front
+579 741 top
+580 582 right
+580 598 front
+580 742 top
+581 583 left
+581 599 front
+581 743 top
+582 584 right
+582 600 front
+582 744 top
+583 585 left
+583 601 front
+583 745 top
+584 602 front
+584 746 top
+585 603 front
+585 747 top
+586 587 right
+586 588 left
+586 604 back
+586 748 top
+587 589 right
+587 605 back
+587 749 top
+588 590 left
+588 606 back
+588 750 top
+589 591 right
+589 607 back
+589 751 top
+590 592 left
+590 608 back
+590 752 top
+591 593 right
+591 609 back
+591 753 top
+592 594 left
+592 610 back
+592 754 top
+593 611 back
+593 755 top
+594 612 back
+594 756 top
+595 596 right
+595 597 left
+595 613 front
+595 757 top
+596 598 right
+596 614 front
+596 758 top
+597 599 left
+597 615 front
+597 759 top
+598 600 right
+598 616 front
+598 760 top
+599 601 left
+599 617 front
+599 761 top
+600 602 right
+600 618 front
+600 762 top
+601 603 left
+601 619 front
+601 763 top
+602 620 front
+602 764 top
+603 621 front
+603 765 top
+604 605 right
+604 606 left
+604 622 back
+604 766 top
+605 607 right
+605 623 back
+605 767 top
+606 608 left
+606 624 back
+606 768 top
+607 609 right
+607 625 back
+607 769 top
+608 610 left
+608 626 back
+608 770 top
+609 611 right
+609 627 back
+609 771 top
+610 612 left
+610 628 back
+610 772 top
+611 629 back
+611 773 top
+612 630 back
+612 774 top
+613 614 right
+613 615 left
+613 631 front
+613 775 top
+614 616 right
+614 632 front
+614 776 top
+615 617 left
+615 633 front
+615 777 top
+616 618 right
+616 634 front
+616 778 top
+617 619 left
+617 635 front
+617 779 top
+618 620 right
+618 636 front
+618 780 top
+619 621 left
+619 637 front
+619 781 top
+620 638 front
+620 782 top
+621 639 front
+621 783 top
+622 623 right
+622 624 left
+622 640 back
+622 784 top
+623 625 right
+623 641 back
+623 785 top
+624 626 left
+624 642 back
+624 786 top
+625 627 right
+625 643 back
+625 787 top
+626 628 left
+626 644 back
+626 788 top
+627 629 right
+627 645 back
+627 789 top
+628 630 left
+628 646 back
+628 790 top
+629 647 back
+629 791 top
+630 648 back
+630 792 top
+631 632 right
+631 633 left
+631 793 top
+632 634 right
+632 794 top
+633 635 left
+633 795 top
+634 636 right
+634 796 top
+635 637 left
+635 797 top
+636 638 right
+636 798 top
+637 639 left
+637 799 top
+638 800 top
+639 801 top
+640 641 right
+640 642 left
+640 802 top
+641 643 right
+641 803 top
+642 644 left
+642 804 top
+643 645 right
+643 805 top
+644 646 left
+644 806 top
+645 647 right
+645 807 top
+646 648 left
+646 808 top
+647 809 top
+648 810 top
+649 650 right
+649 651 left
+649 658 front
+649 667 back
+649 811 bottom
+650 652 right
+650 659 front
+650 668 back
+650 812 bottom
+651 653 left
+651 660 front
+651 669 back
+651 813 bottom
+652 654 right
+652 661 front
+652 670 back
+652 814 bottom
+653 655 left
+653 662 front
+653 671 back
+653 815 bottom
+654 656 right
+654 663 front
+654 672 back
+654 816 bottom
+655 657 left
+655 664 front
+655 673 back
+655 817 bottom
+656 665 front
+656 674 back
+656 818 bottom
+657 666 front
+657 675 back
+657 819 bottom
+658 659 right
+658 660 left
+658 676 front
+658 820 bottom
+659 661 right
+659 677 front
+659 821 bottom
+660 662 left
+660 678 front
+660 822 bottom
+661 663 right
+661 679 front
+661 823 bottom
+662 664 left
+662 680 front
+662 824 bottom
+663 665 right
+663 681 front
+663 825 bottom
+664 666 left
+664 682 front
+664 826 bottom
+665 683 front
+665 827 bottom
+666 684 front
+666 828 bottom
+667 668 right
+667 669 left
+667 685 back
+667 829 bottom
+668 670 right
+668 686 back
+668 830 bottom
+669 671 left
+669 687 back
+669 831 bottom
+670 672 right
+670 688 back
+670 832 bottom
+671 673 left
+671 689 back
+671 833 bottom
+672 674 right
+672 690 back
+672 834 bottom
+673 675 left
+673 691 back
+673 835 bottom
+674 692 back
+674 836 bottom
+675 693 back
+675 837 bottom
+676 677 right
+676 678 left
+676 694 front
+676 838 bottom
+677 679 right
+677 695 front
+677 839 bottom
+678 680 left
+678 696 front
+678 840 bottom
+679 681 right
+679 697 front
+679 841 bottom
+680 682 left
+680 698 front
+680 842 bottom
+681 683 right
+681 699 front
+681 843 bottom
+682 684 left
+682 700 front
+682 844 bottom
+683 701 front
+683 845 bottom
+684 702 front
+684 846 bottom
+685 686 right
+685 687 left
+685 703 back
+685 847 bottom
+686 688 right
+686 704 back
+686 848 bottom
+687 689 left
+687 705 back
+687 849 bottom
+688 690 right
+688 706 back
+688 850 bottom
+689 691 left
+689 707 back
+689 851 bottom
+690 692 right
+690 708 back
+690 852 bottom
+691 693 left
+691 709 back
+691 853 bottom
+692 710 back
+692 854 bottom
+693 711 back
+693 855 bottom
+694 695 right
+694 696 left
+694 712 front
+694 856 bottom
+695 697 right
+695 713 front
+695 857 bottom
+696 698 left
+696 714 front
+696 858 bottom
+697 699 right
+697 715 front
+697 859 bottom
+698 700 left
+698 716 front
+698 860 bottom
+699 701 right
+699 717 front
+699 861 bottom
+700 702 left
+700 718 front
+700 862 bottom
+701 719 front
+701 863 bottom
+702 720 front
+702 864 bottom
+703 704 right
+703 705 left
+703 721 back
+703 865 bottom
+704 706 right
+704 722 back
+704 866 bottom
+705 707 left
+705 723 back
+705 867 bottom
+706 708 right
+706 724 back
+706 868 bottom
+707 709 left
+707 725 back
+707 869 bottom
+708 710 right
+708 726 back
+708 870 bottom
+709 711 left
+709 727 back
+709 871 bottom
+710 728 back
+710 872 bottom
+711 729 back
+711 873 bottom
+712 713 right
+712 714 left
+712 874 bottom
+713 715 right
+713 875 bottom
+714 716 left
+714 876 bottom
+715 717 right
+715 877 bottom
+716 718 left
+716 878 bottom
+717 719 right
+717 879 bottom
+718 720 left
+718 880 bottom
+719 881 bottom
+720 882 bottom
+721 722 right
+721 723 left
+721 883 bottom
+722 724 right
+722 884 bottom
+723 725 left
+723 885 bottom
+724 726 right
+724 886 bottom
+725 727 left
+725 887 bottom
+726 728 right
+726 888 bottom
+727 729 left
+727 889 bottom
+728 890 bottom
+729 891 bottom
+730 731 right
+730 732 left
+730 739 front
+730 748 back
+730 892 top
+731 733 right
+731 740 front
+731 749 back
+731 893 top
+732 734 left
+732 741 front
+732 750 back
+732 894 top
+733 735 right
+733 742 front
+733 751 back
+733 895 top
+734 736 left
+734 743 front
+734 752 back
+734 896 top
+735 737 right
+735 744 front
+735 753 back
+735 897 top
+736 738 left
+736 745 front
+736 754 back
+736 898 top
+737 746 front
+737 755 back
+737 899 top
+738 747 front
+738 756 back
+738 900 top
+739 740 right
+739 741 left
+739 757 front
+739 901 top
+740 742 right
+740 758 front
+740 902 top
+741 743 left
+741 759 front
+741 903 top
+742 744 right
+742 760 front
+742 904 top
+743 745 left
+743 761 front
+743 905 top
+744 746 right
+744 762 front
+744 906 top
+745 747 left
+745 763 front
+745 907 top
+746 764 front
+746 908 top
+747 765 front
+747 909 top
+748 749 right
+748 750 left
+748 766 back
+748 910 top
+749 751 right
+749 767 back
+749 911 top
+750 752 left
+750 768 back
+750 912 top
+751 753 right
+751 769 back
+751 913 top
+752 754 left
+752 770 back
+752 914 top
+753 755 right
+753 771 back
+753 915 top
+754 756 left
+754 772 back
+754 916 top
+755 773 back
+755 917 top
+756 774 back
+756 918 top
+757 758 right
+757 759 left
+757 775 front
+757 919 top
+758 760 right
+758 776 front
+758 920 top
+759 761 left
+759 777 front
+759 921 top
+760 762 right
+760 778 front
+760 922 top
+761 763 left
+761 779 front
+761 923 top
+762 764 right
+762 780 front
+762 924 top
+763 765 left
+763 781 front
+763 925 top
+764 782 front
+764 926 top
+765 783 front
+765 927 top
+766 767 right
+766 768 left
+766 784 back
+766 928 top
+767 769 right
+767 785 back
+767 929 top
+768 770 left
+768 786 back
+768 930 top
+769 771 right
+769 787 back
+769 931 top
+770 772 left
+770 788 back
+770 932 top
+771 773 right
+771 789 back
+771 933 top
+772 774 left
+772 790 back
+772 934 top
+773 791 back
+773 935 top
+774 792 back
+774 936 top
+775 776 right
+775 777 left
+775 793 front
+775 937 top
+776 778 right
+776 794 front
+776 938 top
+777 779 left
+777 795 front
+777 939 top
+778 780 right
+778 796 front
+778 940 top
+779 781 left
+779 797 front
+779 941 top
+780 782 right
+780 798 front
+780 942 top
+781 783 left
+781 799 front
+781 943 top
+782 800 front
+782 944 top
+783 801 front
+783 945 top
+784 785 right
+784 786 left
+784 802 back
+784 946 top
+785 787 right
+785 803 back
+785 947 top
+786 788 left
+786 804 back
+786 948 top
+787 789 right
+787 805 back
+787 949 top
+788 790 left
+788 806 back
+788 950 top
+789 791 right
+789 807 back
+789 951 top
+790 792 left
+790 808 back
+790 952 top
+791 809 back
+791 953 top
+792 810 back
+792 954 top
+793 794 right
+793 795 left
+793 955 top
+794 796 right
+794 956 top
+795 797 left
+795 957 top
+796 798 right
+796 958 top
+797 799 left
+797 959 top
+798 800 right
+798 960 top
+799 801 left
+799 961 top
+800 962 top
+801 963 top
+802 803 right
+802 804 left
+802 964 top
+803 805 right
+803 965 top
+804 806 left
+804 966 top
+805 807 right
+805 967 top
+806 808 left
+806 968 top
+807 809 right
+807 969 top
+808 810 left
+808 970 top
+809 971 top
+810 972 top
+811 812 right
+811 813 left
+811 820 front
+811 829 back
+811 973 bottom
+812 814 right
+812 821 front
+812 830 back
+812 974 bottom
+813 815 left
+813 822 front
+813 831 back
+813 975 bottom
+814 816 right
+814 823 front
+814 832 back
+814 976 bottom
+815 817 left
+815 824 front
+815 833 back
+815 977 bottom
+816 818 right
+816 825 front
+816 834 back
+816 978 bottom
+817 819 left
+817 826 front
+817 835 back
+817 979 bottom
+818 827 front
+818 836 back
+818 980 bottom
+819 828 front
+819 837 back
+819 981 bottom
+820 821 right
+820 822 left
+820 838 front
+820 982 bottom
+821 823 right
+821 839 front
+821 983 bottom
+822 824 left
+822 840 front
+822 984 bottom
+823 825 right
+823 841 front
+823 985 bottom
+824 826 left
+824 842 front
+824 986 bottom
+825 827 right
+825 843 front
+825 987 bottom
+826 828 left
+826 844 front
+826 988 bottom
+827 845 front
+827 989 bottom
+828 846 front
+828 990 bottom
+829 830 right
+829 831 left
+829 847 back
+829 991 bottom
+830 832 right
+830 848 back
+830 992 bottom
+831 833 left
+831 849 back
+831 993 bottom
+832 834 right
+832 850 back
+832 994 bottom
+833 835 left
+833 851 back
+833 995 bottom
+834 836 right
+834 852 back
+834 996 bottom
+835 837 left
+835 853 back
+835 997 bottom
+836 854 back
+836 998 bottom
+837 855 back
+837 999 bottom
+838 839 right
+838 840 left
+838 856 front
+838 1000 bottom
+839 841 right
+839 857 front
+839 1001 bottom
+840 842 left
+840 858 front
+840 1002 bottom
+841 843 right
+841 859 front
+841 1003 bottom
+842 844 left
+842 860 front
+842 1004 bottom
+843 845 right
+843 861 front
+843 1005 bottom
+844 846 left
+844 862 front
+844 1006 bottom
+845 863 front
+845 1007 bottom
+846 864 front
+846 1008 bottom
+847 848 right
+847 849 left
+847 865 back
+847 1009 bottom
+848 850 right
+848 866 back
+848 1010 bottom
+849 851 left
+849 867 back
+849 1011 bottom
+850 852 right
+850 868 back
+850 1012 bottom
+851 853 left
+851 869 back
+851 1013 bottom
+852 854 right
+852 870 back
+852 1014 bottom
+853 855 left
+853 871 back
+853 1015 bottom
+854 872 back
+854 1016 bottom
+855 873 back
+855 1017 bottom
+856 857 right
+856 858 left
+856 874 front
+856 1018 bottom
+857 859 right
+857 875 front
+857 1019 bottom
+858 860 left
+858 876 front
+858 1020 bottom
+859 861 right
+859 877 front
+859 1021 bottom
+860 862 left
+860 878 front
+860 1022 bottom
+861 863 right
+861 879 front
+861 1023 bottom
+862 864 left
+862 880 front
+862 1024 bottom
+863 881 front
+863 1025 bottom
+864 882 front
+864 1026 bottom
+865 866 right
+865 867 left
+865 883 back
+865 1027 bottom
+866 868 right
+866 884 back
+866 1028 bottom
+867 869 left
+867 885 back
+867 1029 bottom
+868 870 right
+868 886 back
+868 1030 bottom
+869 871 left
+869 887 back
+869 1031 bottom
+870 872 right
+870 888 back
+870 1032 bottom
+871 873 left
+871 889 back
+871 1033 bottom
+872 890 back
+872 1034 bottom
+873 891 back
+873 1035 bottom
+874 875 right
+874 876 left
+874 1036 bottom
+875 877 right
+875 1037 bottom
+876 878 left
+876 1038 bottom
+877 879 right
+877 1039 bottom
+878 880 left
+878 1040 bottom
+879 881 right
+879 1041 bottom
+880 882 left
+880 1042 bottom
+881 1043 bottom
+882 1044 bottom
+883 884 right
+883 885 left
+883 1045 bottom
+884 886 right
+884 1046 bottom
+885 887 left
+885 1047 bottom
+886 888 right
+886 1048 bottom
+887 889 left
+887 1049 bottom
+888 890 right
+888 1050 bottom
+889 891 left
+889 1051 bottom
+890 1052 bottom
+891 1053 bottom
+892 893 right
+892 894 left
+892 901 front
+892 910 back
+892 1054 top
+893 895 right
+893 902 front
+893 911 back
+893 1055 top
+894 896 left
+894 903 front
+894 912 back
+894 1056 top
+895 897 right
+895 904 front
+895 913 back
+895 1057 top
+896 898 left
+896 905 front
+896 914 back
+896 1058 top
+897 899 right
+897 906 front
+897 915 back
+897 1059 top
+898 900 left
+898 907 front
+898 916 back
+898 1060 top
+899 908 front
+899 917 back
+899 1061 top
+900 909 front
+900 918 back
+900 1062 top
+901 902 right
+901 903 left
+901 919 front
+901 1063 top
+902 904 right
+902 920 front
+902 1064 top
+903 905 left
+903 921 front
+903 1065 top
+904 906 right
+904 922 front
+904 1066 top
+905 907 left
+905 923 front
+905 1067 top
+906 908 right
+906 924 front
+906 1068 top
+907 909 left
+907 925 front
+907 1069 top
+908 926 front
+908 1070 top
+909 927 front
+909 1071 top
+910 911 right
+910 912 left
+910 928 back
+910 1072 top
+911 913 right
+911 929 back
+911 1073 top
+912 914 left
+912 930 back
+912 1074 top
+913 915 right
+913 931 back
+913 1075 top
+914 916 left
+914 932 back
+914 1076 top
+915 917 right
+915 933 back
+915 1077 top
+916 918 left
+916 934 back
+916 1078 top
+917 935 back
+917 1079 top
+918 936 back
+918 1080 top
+919 920 right
+919 921 left
+919 937 front
+919 1081 top
+920 922 right
+920 938 front
+920 1082 top
+921 923 left
+921 939 front
+921 1083 top
+922 924 right
+922 940 front
+922 1084 top
+923 925 left
+923 941 front
+923 1085 top
+924 926 right
+924 942 front
+924 1086 top
+925 927 left
+925 943 front
+925 1087 top
+926 944 front
+926 1088 top
+927 945 front
+927 1089 top
+928 929 right
+928 930 left
+928 946 back
+928 1090 top
+929 931 right
+929 947 back
+929 1091 top
+930 932 left
+930 948 back
+930 1092 top
+931 933 right
+931 949 back
+931 1093 top
+932 934 left
+932 950 back
+932 1094 top
+933 935 right
+933 951 back
+933 1095 top
+934 936 left
+934 952 back
+934 1096 top
+935 953 back
+935 1097 top
+936 954 back
+936 1098 top
+937 938 right
+937 939 left
+937 955 front
+937 1099 top
+938 940 right
+938 956 front
+938 1100 top
+939 941 left
+939 957 front
+939 1101 top
+940 942 right
+940 958 front
+940 1102 top
+941 943 left
+941 959 front
+941 1103 top
+942 944 right
+942 960 front
+942 1104 top
+943 945 left
+943 961 front
+943 1105 top
+944 962 front
+944 1106 top
+945 963 front
+945 1107 top
+946 947 right
+946 948 left
+946 964 back
+946 1108 top
+947 949 right
+947 965 back
+947 1109 top
+948 950 left
+948 966 back
+948 1110 top
+949 951 right
+949 967 back
+949 1111 top
+950 952 left
+950 968 back
+950 1112 top
+951 953 right
+951 969 back
+951 1113 top
+952 954 left
+952 970 back
+952 1114 top
+953 971 back
+953 1115 top
+954 972 back
+954 1116 top
+955 956 right
+955 957 left
+955 1117 top
+956 958 right
+956 1118 top
+957 959 left
+957 1119 top
+958 960 right
+958 1120 top
+959 961 left
+959 1121 top
+960 962 right
+960 1122 top
+961 963 left
+961 1123 top
+962 1124 top
+963 1125 top
+964 965 right
+964 966 left
+964 1126 top
+965 967 right
+965 1127 top
+966 968 left
+966 1128 top
+967 969 right
+967 1129 top
+968 970 left
+968 1130 top
+969 971 right
+969 1131 top
+970 972 left
+970 1132 top
+971 1133 top
+972 1134 top
+973 974 right
+973 975 left
+973 982 front
+973 991 back
+973 1135 bottom
+974 976 right
+974 983 front
+974 992 back
+974 1136 bottom
+975 977 left
+975 984 front
+975 993 back
+975 1137 bottom
+976 978 right
+976 985 front
+976 994 back
+976 1138 bottom
+977 979 left
+977 986 front
+977 995 back
+977 1139 bottom
+978 980 right
+978 987 front
+978 996 back
+978 1140 bottom
+979 981 left
+979 988 front
+979 997 back
+979 1141 bottom
+980 989 front
+980 998 back
+980 1142 bottom
+981 990 front
+981 999 back
+981 1143 bottom
+982 983 right
+982 984 left
+982 1000 front
+982 1144 bottom
+983 985 right
+983 1001 front
+983 1145 bottom
+984 986 left
+984 1002 front
+984 1146 bottom
+985 987 right
+985 1003 front
+985 1147 bottom
+986 988 left
+986 1004 front
+986 1148 bottom
+987 989 right
+987 1005 front
+987 1149 bottom
+988 990 left
+988 1006 front
+988 1150 bottom
+989 1007 front
+989 1151 bottom
+990 1008 front
+990 1152 bottom
+991 992 right
+991 993 left
+991 1009 back
+991 1153 bottom
+992 994 right
+992 1010 back
+992 1154 bottom
+993 995 left
+993 1011 back
+993 1155 bottom
+994 996 right
+994 1012 back
+994 1156 bottom
+995 997 left
+995 1013 back
+995 1157 bottom
+996 998 right
+996 1014 back
+996 1158 bottom
+997 999 left
+997 1015 back
+997 1159 bottom
+998 1016 back
+998 1160 bottom
+999 1017 back
+999 1161 bottom
+1000 1001 right
+1000 1002 left
+1000 1018 front
+1000 1162 bottom
+1001 1003 right
+1001 1019 front
+1001 1163 bottom
+1002 1004 left
+1002 1020 front
+1002 1164 bottom
+1003 1005 right
+1003 1021 front
+1003 1165 bottom
+1004 1006 left
+1004 1022 front
+1004 1166 bottom
+1005 1007 right
+1005 1023 front
+1005 1167 bottom
+1006 1008 left
+1006 1024 front
+1006 1168 bottom
+1007 1025 front
+1007 1169 bottom
+1008 1026 front
+1008 1170 bottom
+1009 1010 right
+1009 1011 left
+1009 1027 back
+1009 1171 bottom
+1010 1012 right
+1010 1028 back
+1010 1172 bottom
+1011 1013 left
+1011 1029 back
+1011 1173 bottom
+1012 1014 right
+1012 1030 back
+1012 1174 bottom
+1013 1015 left
+1013 1031 back
+1013 1175 bottom
+1014 1016 right
+1014 1032 back
+1014 1176 bottom
+1015 1017 left
+1015 1033 back
+1015 1177 bottom
+1016 1034 back
+1016 1178 bottom
+1017 1035 back
+1017 1179 bottom
+1018 1019 right
+1018 1020 left
+1018 1036 front
+1018 1180 bottom
+1019 1021 right
+1019 1037 front
+1019 1181 bottom
+1020 1022 left
+1020 1038 front
+1020 1182 bottom
+1021 1023 right
+1021 1039 front
+1021 1183 bottom
+1022 1024 left
+1022 1040 front
+1022 1184 bottom
+1023 1025 right
+1023 1041 front
+1023 1185 bottom
+1024 1026 left
+1024 1042 front
+1024 1186 bottom
+1025 1043 front
+1025 1187 bottom
+1026 1044 front
+1026 1188 bottom
+1027 1028 right
+1027 1029 left
+1027 1045 back
+1027 1189 bottom
+1028 1030 right
+1028 1046 back
+1028 1190 bottom
+1029 1031 left
+1029 1047 back
+1029 1191 bottom
+1030 1032 right
+1030 1048 back
+1030 1192 bottom
+1031 1033 left
+1031 1049 back
+1031 1193 bottom
+1032 1034 right
+1032 1050 back
+1032 1194 bottom
+1033 1035 left
+1033 1051 back
+1033 1195 bottom
+1034 1052 back
+1034 1196 bottom
+1035 1053 back
+1035 1197 bottom
+1036 1037 right
+1036 1038 left
+1036 1198 bottom
+1037 1039 right
+1037 1199 bottom
+1038 1040 left
+1038 1200 bottom
+1039 1041 right
+1039 1201 bottom
+1040 1042 left
+1040 1202 bottom
+1041 1043 right
+1041 1203 bottom
+1042 1044 left
+1042 1204 bottom
+1043 1205 bottom
+1044 1206 bottom
+1045 1046 right
+1045 1047 left
+1045 1207 bottom
+1046 1048 right
+1046 1208 bottom
+1047 1049 left
+1047 1209 bottom
+1048 1050 right
+1048 1210 bottom
+1049 1051 left
+1049 1211 bottom
+1050 1052 right
+1050 1212 bottom
+1051 1053 left
+1051 1213 bottom
+1052 1214 bottom
+1053 1215 bottom
+1054 1055 right
+1054 1056 left
+1054 1063 front
+1054 1072 back
+1054 1216 top
+1055 1057 right
+1055 1064 front
+1055 1073 back
+1055 1217 top
+1056 1058 left
+1056 1065 front
+1056 1074 back
+1056 1218 top
+1057 1059 right
+1057 1066 front
+1057 1075 back
+1057 1219 top
+1058 1060 left
+1058 1067 front
+1058 1076 back
+1058 1220 top
+1059 1061 right
+1059 1068 front
+1059 1077 back
+1059 1221 top
+1060 1062 left
+1060 1069 front
+1060 1078 back
+1060 1222 top
+1061 1070 front
+1061 1079 back
+1061 1223 top
+1062 1071 front
+1062 1080 back
+1062 1224 top
+1063 1064 right
+1063 1065 left
+1063 1081 front
+1063 1225 top
+1064 1066 right
+1064 1082 front
+1064 1226 top
+1065 1067 left
+1065 1083 front
+1065 1227 top
+1066 1068 right
+1066 1084 front
+1066 1228 top
+1067 1069 left
+1067 1085 front
+1067 1229 top
+1068 1070 right
+1068 1086 front
+1068 1230 top
+1069 1071 left
+1069 1087 front
+1069 1231 top
+1070 1088 front
+1070 1232 top
+1071 1089 front
+1071 1233 top
+1072 1073 right
+1072 1074 left
+1072 1090 back
+1072 1234 top
+1073 1075 right
+1073 1091 back
+1073 1235 top
+1074 1076 left
+1074 1092 back
+1074 1236 top
+1075 1077 right
+1075 1093 back
+1075 1237 top
+1076 1078 left
+1076 1094 back
+1076 1238 top
+1077 1079 right
+1077 1095 back
+1077 1239 top
+1078 1080 left
+1078 1096 back
+1078 1240 top
+1079 1097 back
+1079 1241 top
+1080 1098 back
+1080 1242 top
+1081 1082 right
+1081 1083 left
+1081 1099 front
+1081 1243 top
+1082 1084 right
+1082 1100 front
+1082 1244 top
+1083 1085 left
+1083 1101 front
+1083 1245 top
+1084 1086 right
+1084 1102 front
+1084 1246 top
+1085 1087 left
+1085 1103 front
+1085 1247 top
+1086 1088 right
+1086 1104 front
+1086 1248 top
+1087 1089 left
+1087 1105 front
+1087 1249 top
+1088 1106 front
+1088 1250 top
+1089 1107 front
+1089 1251 top
+1090 1091 right
+1090 1092 left
+1090 1108 back
+1090 1252 top
+1091 1093 right
+1091 1109 back
+1091 1253 top
+1092 1094 left
+1092 1110 back
+1092 1254 top
+1093 1095 right
+1093 1111 back
+1093 1255 top
+1094 1096 left
+1094 1112 back
+1094 1256 top
+1095 1097 right
+1095 1113 back
+1095 1257 top
+1096 1098 left
+1096 1114 back
+1096 1258 top
+1097 1115 back
+1097 1259 top
+1098 1116 back
+1098 1260 top
+1099 1100 right
+1099 1101 left
+1099 1117 front
+1099 1261 top
+1100 1102 right
+1100 1118 front
+1100 1262 top
+1101 1103 left
+1101 1119 front
+1101 1263 top
+1102 1104 right
+1102 1120 front
+1102 1264 top
+1103 1105 left
+1103 1121 front
+1103 1265 top
+1104 1106 right
+1104 1122 front
+1104 1266 top
+1105 1107 left
+1105 1123 front
+1105 1267 top
+1106 1124 front
+1106 1268 top
+1107 1125 front
+1107 1269 top
+1108 1109 right
+1108 1110 left
+1108 1126 back
+1108 1270 top
+1109 1111 right
+1109 1127 back
+1109 1271 top
+1110 1112 left
+1110 1128 back
+1110 1272 top
+1111 1113 right
+1111 1129 back
+1111 1273 top
+1112 1114 left
+1112 1130 back
+1112 1274 top
+1113 1115 right
+1113 1131 back
+1113 1275 top
+1114 1116 left
+1114 1132 back
+1114 1276 top
+1115 1133 back
+1115 1277 top
+1116 1134 back
+1116 1278 top
+1117 1118 right
+1117 1119 left
+1117 1279 top
+1118 1120 right
+1118 1280 top
+1119 1121 left
+1119 1281 top
+1120 1122 right
+1120 1282 top
+1121 1123 left
+1121 1283 top
+1122 1124 right
+1122 1284 top
+1123 1125 left
+1123 1285 top
+1124 1286 top
+1125 1287 top
+1126 1127 right
+1126 1128 left
+1126 1288 top
+1127 1129 right
+1127 1289 top
+1128 1130 left
+1128 1290 top
+1129 1131 right
+1129 1291 top
+1130 1132 left
+1130 1292 top
+1131 1133 right
+1131 1293 top
+1132 1134 left
+1132 1294 top
+1133 1295 top
+1134 1296 top
+1135 1136 right
+1135 1137 left
+1135 1144 front
+1135 1153 back
+1135 1297 bottom
+1136 1138 right
+1136 1145 front
+1136 1154 back
+1136 1298 bottom
+1137 1139 left
+1137 1146 front
+1137 1155 back
+1137 1299 bottom
+1138 1140 right
+1138 1147 front
+1138 1156 back
+1138 1300 bottom
+1139 1141 left
+1139 1148 front
+1139 1157 back
+1139 1301 bottom
+1140 1142 right
+1140 1149 front
+1140 1158 back
+1140 1302 bottom
+1141 1143 left
+1141 1150 front
+1141 1159 back
+1141 1303 bottom
+1142 1151 front
+1142 1160 back
+1142 1304 bottom
+1143 1152 front
+1143 1161 back
+1143 1305 bottom
+1144 1145 right
+1144 1146 left
+1144 1162 front
+1144 1306 bottom
+1145 1147 right
+1145 1163 front
+1145 1307 bottom
+1146 1148 left
+1146 1164 front
+1146 1308 bottom
+1147 1149 right
+1147 1165 front
+1147 1309 bottom
+1148 1150 left
+1148 1166 front
+1148 1310 bottom
+1149 1151 right
+1149 1167 front
+1149 1311 bottom
+1150 1152 left
+1150 1168 front
+1150 1312 bottom
+1151 1169 front
+1151 1313 bottom
+1152 1170 front
+1152 1314 bottom
+1153 1154 right
+1153 1155 left
+1153 1171 back
+1153 1315 bottom
+1154 1156 right
+1154 1172 back
+1154 1316 bottom
+1155 1157 left
+1155 1173 back
+1155 1317 bottom
+1156 1158 right
+1156 1174 back
+1156 1318 bottom
+1157 1159 left
+1157 1175 back
+1157 1319 bottom
+1158 1160 right
+1158 1176 back
+1158 1320 bottom
+1159 1161 left
+1159 1177 back
+1159 1321 bottom
+1160 1178 back
+1160 1322 bottom
+1161 1179 back
+1161 1323 bottom
+1162 1163 right
+1162 1164 left
+1162 1180 front
+1162 1324 bottom
+1163 1165 right
+1163 1181 front
+1163 1325 bottom
+1164 1166 left
+1164 1182 front
+1164 1326 bottom
+1165 1167 right
+1165 1183 front
+1165 1327 bottom
+1166 1168 left
+1166 1184 front
+1166 1328 bottom
+1167 1169 right
+1167 1185 front
+1167 1329 bottom
+1168 1170 left
+1168 1186 front
+1168 1330 bottom
+1169 1187 front
+1169 1331 bottom
+1170 1188 front
+1170 1332 bottom
+1171 1172 right
+1171 1173 left
+1171 1189 back
+1171 1333 bottom
+1172 1174 right
+1172 1190 back
+1172 1334 bottom
+1173 1175 left
+1173 1191 back
+1173 1335 bottom
+1174 1176 right
+1174 1192 back
+1174 1336 bottom
+1175 1177 left
+1175 1193 back
+1175 1337 bottom
+1176 1178 right
+1176 1194 back
+1176 1338 bottom
+1177 1179 left
+1177 1195 back
+1177 1339 bottom
+1178 1196 back
+1178 1340 bottom
+1179 1197 back
+1179 1341 bottom
+1180 1181 right
+1180 1182 left
+1180 1198 front
+1180 1342 bottom
+1181 1183 right
+1181 1199 front
+1181 1343 bottom
+1182 1184 left
+1182 1200 front
+1182 1344 bottom
+1183 1185 right
+1183 1201 front
+1183 1345 bottom
+1184 1186 left
+1184 1202 front
+1184 1346 bottom
+1185 1187 right
+1185 1203 front
+1185 1347 bottom
+1186 1188 left
+1186 1204 front
+1186 1348 bottom
+1187 1205 front
+1187 1349 bottom
+1188 1206 front
+1188 1350 bottom
+1189 1190 right
+1189 1191 left
+1189 1207 back
+1189 1351 bottom
+1190 1192 right
+1190 1208 back
+1190 1352 bottom
+1191 1193 left
+1191 1209 back
+1191 1353 bottom
+1192 1194 right
+1192 1210 back
+1192 1354 bottom
+1193 1195 left
+1193 1211 back
+1193 1355 bottom
+1194 1196 right
+1194 1212 back
+1194 1356 bottom
+1195 1197 left
+1195 1213 back
+1195 1357 bottom
+1196 1214 back
+1196 1358 bottom
+1197 1215 back
+1197 1359 bottom
+1198 1199 right
+1198 1200 left
+1198 1360 bottom
+1199 1201 right
+1199 1361 bottom
+1200 1202 left
+1200 1362 bottom
+1201 1203 right
+1201 1363 bottom
+1202 1204 left
+1202 1364 bottom
+1203 1205 right
+1203 1365 bottom
+1204 1206 left
+1204 1366 bottom
+1205 1367 bottom
+1206 1368 bottom
+1207 1208 right
+1207 1209 left
+1207 1369 bottom
+1208 1210 right
+1208 1370 bottom
+1209 1211 left
+1209 1371 bottom
+1210 1212 right
+1210 1372 bottom
+1211 1213 left
+1211 1373 bottom
+1212 1214 right
+1212 1374 bottom
+1213 1215 left
+1213 1375 bottom
+1214 1376 bottom
+1215 1377 bottom
+1216 1217 right
+1216 1218 left
+1216 1225 front
+1216 1234 back
+1216 1378 top
+1217 1219 right
+1217 1226 front
+1217 1235 back
+1217 1379 top
+1218 1220 left
+1218 1227 front
+1218 1236 back
+1218 1380 top
+1219 1221 right
+1219 1228 front
+1219 1237 back
+1219 1381 top
+1220 1222 left
+1220 1229 front
+1220 1238 back
+1220 1382 top
+1221 1223 right
+1221 1230 front
+1221 1239 back
+1221 1383 top
+1222 1224 left
+1222 1231 front
+1222 1240 back
+1222 1384 top
+1223 1232 front
+1223 1241 back
+1223 1385 top
+1224 1233 front
+1224 1242 back
+1224 1386 top
+1225 1226 right
+1225 1227 left
+1225 1243 front
+1225 1387 top
+1226 1228 right
+1226 1244 front
+1226 1388 top
+1227 1229 left
+1227 1245 front
+1227 1389 top
+1228 1230 right
+1228 1246 front
+1228 1390 top
+1229 1231 left
+1229 1247 front
+1229 1391 top
+1230 1232 right
+1230 1248 front
+1230 1392 top
+1231 1233 left
+1231 1249 front
+1231 1393 top
+1232 1250 front
+1232 1394 top
+1233 1251 front
+1233 1395 top
+1234 1235 right
+1234 1236 left
+1234 1252 back
+1234 1396 top
+1235 1237 right
+1235 1253 back
+1235 1397 top
+1236 1238 left
+1236 1254 back
+1236 1398 top
+1237 1239 right
+1237 1255 back
+1237 1399 top
+1238 1240 left
+1238 1256 back
+1238 1400 top
+1239 1241 right
+1239 1257 back
+1239 1401 top
+1240 1242 left
+1240 1258 back
+1240 1402 top
+1241 1259 back
+1241 1403 top
+1242 1260 back
+1242 1404 top
+1243 1244 right
+1243 1245 left
+1243 1261 front
+1243 1405 top
+1244 1246 right
+1244 1262 front
+1244 1406 top
+1245 1247 left
+1245 1263 front
+1245 1407 top
+1246 1248 right
+1246 1264 front
+1246 1408 top
+1247 1249 left
+1247 1265 front
+1247 1409 top
+1248 1250 right
+1248 1266 front
+1248 1410 top
+1249 1251 left
+1249 1267 front
+1249 1411 top
+1250 1268 front
+1250 1412 top
+1251 1269 front
+1251 1413 top
+1252 1253 right
+1252 1254 left
+1252 1270 back
+1252 1414 top
+1253 1255 right
+1253 1271 back
+1253 1415 top
+1254 1256 left
+1254 1272 back
+1254 1416 top
+1255 1257 right
+1255 1273 back
+1255 1417 top
+1256 1258 left
+1256 1274 back
+1256 1418 top
+1257 1259 right
+1257 1275 back
+1257 1419 top
+1258 1260 left
+1258 1276 back
+1258 1420 top
+1259 1277 back
+1259 1421 top
+1260 1278 back
+1260 1422 top
+1261 1262 right
+1261 1263 left
+1261 1279 front
+1261 1423 top
+1262 1264 right
+1262 1280 front
+1262 1424 top
+1263 1265 left
+1263 1281 front
+1263 1425 top
+1264 1266 right
+1264 1282 front
+1264 1426 top
+1265 1267 left
+1265 1283 front
+1265 1427 top
+1266 1268 right
+1266 1284 front
+1266 1428 top
+1267 1269 left
+1267 1285 front
+1267 1429 top
+1268 1286 front
+1268 1430 top
+1269 1287 front
+1269 1431 top
+1270 1271 right
+1270 1272 left
+1270 1288 back
+1270 1432 top
+1271 1273 right
+1271 1289 back
+1271 1433 top
+1272 1274 left
+1272 1290 back
+1272 1434 top
+1273 1275 right
+1273 1291 back
+1273 1435 top
+1274 1276 left
+1274 1292 back
+1274 1436 top
+1275 1277 right
+1275 1293 back
+1275 1437 top
+1276 1278 left
+1276 1294 back
+1276 1438 top
+1277 1295 back
+1277 1439 top
+1278 1296 back
+1278 1440 top
+1279 1280 right
+1279 1281 left
+1279 1441 top
+1280 1282 right
+1280 1442 top
+1281 1283 left
+1281 1443 top
+1282 1284 right
+1282 1444 top
+1283 1285 left
+1283 1445 top
+1284 1286 right
+1284 1446 top
+1285 1287 left
+1285 1447 top
+1286 1448 top
+1287 1449 top
+1288 1289 right
+1288 1290 left
+1288 1450 top
+1289 1291 right
+1289 1451 top
+1290 1292 left
+1290 1452 top
+1291 1293 right
+1291 1453 top
+1292 1294 left
+1292 1454 top
+1293 1295 right
+1293 1455 top
+1294 1296 left
+1294 1456 top
+1295 1457 top
+1296 1458 top
+1297 1298 right
+1297 1299 left
+1297 1306 front
+1297 1315 back
+1297 1459 bottom
+1298 1300 right
+1298 1307 front
+1298 1316 back
+1298 1460 bottom
+1299 1301 left
+1299 1308 front
+1299 1317 back
+1299 1461 bottom
+1300 1302 right
+1300 1309 front
+1300 1318 back
+1300 1462 bottom
+1301 1303 left
+1301 1310 front
+1301 1319 back
+1301 1463 bottom
+1302 1304 right
+1302 1311 front
+1302 1320 back
+1302 1464 bottom
+1303 1305 left
+1303 1312 front
+1303 1321 back
+1303 1465 bottom
+1304 1313 front
+1304 1322 back
+1304 1466 bottom
+1305 1314 front
+1305 1323 back
+1305 1467 bottom
+1306 1307 right
+1306 1308 left
+1306 1324 front
+1306 1468 bottom
+1307 1309 right
+1307 1325 front
+1307 1469 bottom
+1308 1310 left
+1308 1326 front
+1308 1470 bottom
+1309 1311 right
+1309 1327 front
+1309 1471 bottom
+1310 1312 left
+1310 1328 front
+1310 1472 bottom
+1311 1313 right
+1311 1329 front
+1311 1473 bottom
+1312 1314 left
+1312 1330 front
+1312 1474 bottom
+1313 1331 front
+1313 1475 bottom
+1314 1332 front
+1314 1476 bottom
+1315 1316 right
+1315 1317 left
+1315 1333 back
+1315 1477 bottom
+1316 1318 right
+1316 1334 back
+1316 1478 bottom
+1317 1319 left
+1317 1335 back
+1317 1479 bottom
+1318 1320 right
+1318 1336 back
+1318 1480 bottom
+1319 1321 left
+1319 1337 back
+1319 1481 bottom
+1320 1322 right
+1320 1338 back
+1320 1482 bottom
+1321 1323 left
+1321 1339 back
+1321 1483 bottom
+1322 1340 back
+1322 1484 bottom
+1323 1341 back
+1323 1485 bottom
+1324 1325 right
+1324 1326 left
+1324 1342 front
+1324 1486 bottom
+1325 1327 right
+1325 1343 front
+1325 1487 bottom
+1326 1328 left
+1326 1344 front
+1326 1488 bottom
+1327 1329 right
+1327 1345 front
+1327 1489 bottom
+1328 1330 left
+1328 1346 front
+1328 1490 bottom
+1329 1331 right
+1329 1347 front
+1329 1491 bottom
+1330 1332 left
+1330 1348 front
+1330 1492 bottom
+1331 1349 front
+1331 1493 bottom
+1332 1350 front
+1332 1494 bottom
+1333 1334 right
+1333 1335 left
+1333 1351 back
+1333 1495 bottom
+1334 1336 right
+1334 1352 back
+1334 1496 bottom
+1335 1337 left
+1335 1353 back
+1335 1497 bottom
+1336 1338 right
+1336 1354 back
+1336 1498 bottom
+1337 1339 left
+1337 1355 back
+1337 1499 bottom
+1338 1340 right
+1338 1356 back
+1338 1500 bottom
+1339 1341 left
+1339 1357 back
+1339 1501 bottom
+1340 1358 back
+1340 1502 bottom
+1341 1359 back
+1341 1503 bottom
+1342 1343 right
+1342 1344 left
+1342 1360 front
+1342 1504 bottom
+1343 1345 right
+1343 1361 front
+1343 1505 bottom
+1344 1346 left
+1344 1362 front
+1344 1506 bottom
+1345 1347 right
+1345 1363 front
+1345 1507 bottom
+1346 1348 left
+1346 1364 front
+1346 1508 bottom
+1347 1349 right
+1347 1365 front
+1347 1509 bottom
+1348 1350 left
+1348 1366 front
+1348 1510 bottom
+1349 1367 front
+1349 1511 bottom
+1350 1368 front
+1350 1512 bottom
+1351 1352 right
+1351 1353 left
+1351 1369 back
+1351 1513 bottom
+1352 1354 right
+1352 1370 back
+1352 1514 bottom
+1353 1355 left
+1353 1371 back
+1353 1515 bottom
+1354 1356 right
+1354 1372 back
+1354 1516 bottom
+1355 1357 left
+1355 1373 back
+1355 1517 bottom
+1356 1358 right
+1356 1374 back
+1356 1518 bottom
+1357 1359 left
+1357 1375 back
+1357 1519 bottom
+1358 1376 back
+1358 1520 bottom
+1359 1377 back
+1359 1521 bottom
+1360 1361 right
+1360 1362 left
+1360 1522 bottom
+1361 1363 right
+1361 1523 bottom
+1362 1364 left
+1362 1524 bottom
+1363 1365 right
+1363 1525 bottom
+1364 1366 left
+1364 1526 bottom
+1365 1367 right
+1365 1527 bottom
+1366 1368 left
+1366 1528 bottom
+1367 1529 bottom
+1368 1530 bottom
+1369 1370 right
+1369 1371 left
+1369 1531 bottom
+1370 1372 right
+1370 1532 bottom
+1371 1373 left
+1371 1533 bottom
+1372 1374 right
+1372 1534 bottom
+1373 1375 left
+1373 1535 bottom
+1374 1376 right
+1374 1536 bottom
+1375 1377 left
+1375 1537 bottom
+1376 1538 bottom
+1377 1539 bottom
+1378 1379 right
+1378 1380 left
+1378 1387 front
+1378 1396 back
+1378 1540 top
+1379 1381 right
+1379 1388 front
+1379 1397 back
+1379 1541 top
+1380 1382 left
+1380 1389 front
+1380 1398 back
+1380 1542 top
+1381 1383 right
+1381 1390 front
+1381 1399 back
+1381 1543 top
+1382 1384 left
+1382 1391 front
+1382 1400 back
+1382 1544 top
+1383 1385 right
+1383 1392 front
+1383 1401 back
+1383 1545 top
+1384 1386 left
+1384 1393 front
+1384 1402 back
+1384 1546 top
+1385 1394 front
+1385 1403 back
+1385 1547 top
+1386 1395 front
+1386 1404 back
+1386 1548 top
+1387 1388 right
+1387 1389 left
+1387 1405 front
+1387 1549 top
+1388 1390 right
+1388 1406 front
+1388 1550 top
+1389 1391 left
+1389 1407 front
+1389 1551 top
+1390 1392 right
+1390 1408 front
+1390 1552 top
+1391 1393 left
+1391 1409 front
+1391 1553 top
+1392 1394 right
+1392 1410 front
+1392 1554 top
+1393 1395 left
+1393 1411 front
+1393 1555 top
+1394 1412 front
+1394 1556 top
+1395 1413 front
+1395 1557 top
+1396 1397 right
+1396 1398 left
+1396 1414 back
+1396 1558 top
+1397 1399 right
+1397 1415 back
+1397 1559 top
+1398 1400 left
+1398 1416 back
+1398 1560 top
+1399 1401 right
+1399 1417 back
+1399 1561 top
+1400 1402 left
+1400 1418 back
+1400 1562 top
+1401 1403 right
+1401 1419 back
+1401 1563 top
+1402 1404 left
+1402 1420 back
+1402 1564 top
+1403 1421 back
+1403 1565 top
+1404 1422 back
+1404 1566 top
+1405 1406 right
+1405 1407 left
+1405 1423 front
+1405 1567 top
+1406 1408 right
+1406 1424 front
+1406 1568 top
+1407 1409 left
+1407 1425 front
+1407 1569 top
+1408 1410 right
+1408 1426 front
+1408 1570 top
+1409 1411 left
+1409 1427 front
+1409 1571 top
+1410 1412 right
+1410 1428 front
+1410 1572 top
+1411 1413 left
+1411 1429 front
+1411 1573 top
+1412 1430 front
+1412 1574 top
+1413 1431 front
+1413 1575 top
+1414 1415 right
+1414 1416 left
+1414 1432 back
+1414 1576 top
+1415 1417 right
+1415 1433 back
+1415 1577 top
+1416 1418 left
+1416 1434 back
+1416 1578 top
+1417 1419 right
+1417 1435 back
+1417 1579 top
+1418 1420 left
+1418 1436 back
+1418 1580 top
+1419 1421 right
+1419 1437 back
+1419 1581 top
+1420 1422 left
+1420 1438 back
+1420 1582 top
+1421 1439 back
+1421 1583 top
+1422 1440 back
+1422 1584 top
+1423 1424 right
+1423 1425 left
+1423 1441 front
+1423 1585 top
+1424 1426 right
+1424 1442 front
+1424 1586 top
+1425 1427 left
+1425 1443 front
+1425 1587 top
+1426 1428 right
+1426 1444 front
+1426 1588 top
+1427 1429 left
+1427 1445 front
+1427 1589 top
+1428 1430 right
+1428 1446 front
+1428 1590 top
+1429 1431 left
+1429 1447 front
+1429 1591 top
+1430 1448 front
+1430 1592 top
+1431 1449 front
+1431 1593 top
+1432 1433 right
+1432 1434 left
+1432 1450 back
+1432 1594 top
+1433 1435 right
+1433 1451 back
+1433 1595 top
+1434 1436 left
+1434 1452 back
+1434 1596 top
+1435 1437 right
+1435 1453 back
+1435 1597 top
+1436 1438 left
+1436 1454 back
+1436 1598 top
+1437 1439 right
+1437 1455 back
+1437 1599 top
+1438 1440 left
+1438 1456 back
+1438 1600 top
+1439 1457 back
+1439 1601 top
+1440 1458 back
+1440 1602 top
+1441 1442 right
+1441 1443 left
+1441 1603 top
+1442 1444 right
+1442 1604 top
+1443 1445 left
+1443 1605 top
+1444 1446 right
+1444 1606 top
+1445 1447 left
+1445 1607 top
+1446 1448 right
+1446 1608 top
+1447 1449 left
+1447 1609 top
+1448 1610 top
+1449 1611 top
+1450 1451 right
+1450 1452 left
+1450 1612 top
+1451 1453 right
+1451 1613 top
+1452 1454 left
+1452 1614 top
+1453 1455 right
+1453 1615 top
+1454 1456 left
+1454 1616 top
+1455 1457 right
+1455 1617 top
+1456 1458 left
+1456 1618 top
+1457 1619 top
+1458 1620 top
+1459 1460 right
+1459 1461 left
+1459 1468 front
+1459 1477 back
+1460 1462 right
+1460 1469 front
+1460 1478 back
+1461 1463 left
+1461 1470 front
+1461 1479 back
+1462 1464 right
+1462 1471 front
+1462 1480 back
+1463 1465 left
+1463 1472 front
+1463 1481 back
+1464 1466 right
+1464 1473 front
+1464 1482 back
+1465 1467 left
+1465 1474 front
+1465 1483 back
+1466 1475 front
+1466 1484 back
+1467 1476 front
+1467 1485 back
+1468 1469 right
+1468 1470 left
+1468 1486 front
+1469 1471 right
+1469 1487 front
+1470 1472 left
+1470 1488 front
+1471 1473 right
+1471 1489 front
+1472 1474 left
+1472 1490 front
+1473 1475 right
+1473 1491 front
+1474 1476 left
+1474 1492 front
+1475 1493 front
+1476 1494 front
+1477 1478 right
+1477 1479 left
+1477 1495 back
+1478 1480 right
+1478 1496 back
+1479 1481 left
+1479 1497 back
+1480 1482 right
+1480 1498 back
+1481 1483 left
+1481 1499 back
+1482 1484 right
+1482 1500 back
+1483 1485 left
+1483 1501 back
+1484 1502 back
+1485 1503 back
+1486 1487 right
+1486 1488 left
+1486 1504 front
+1487 1489 right
+1487 1505 front
+1488 1490 left
+1488 1506 front
+1489 1491 right
+1489 1507 front
+1490 1492 left
+1490 1508 front
+1491 1493 right
+1491 1509 front
+1492 1494 left
+1492 1510 front
+1493 1511 front
+1494 1512 front
+1495 1496 right
+1495 1497 left
+1495 1513 back
+1496 1498 right
+1496 1514 back
+1497 1499 left
+1497 1515 back
+1498 1500 right
+1498 1516 back
+1499 1501 left
+1499 1517 back
+1500 1502 right
+1500 1518 back
+1501 1503 left
+1501 1519 back
+1502 1520 back
+1503 1521 back
+1504 1505 right
+1504 1506 left
+1504 1522 front
+1505 1507 right
+1505 1523 front
+1506 1508 left
+1506 1524 front
+1507 1509 right
+1507 1525 front
+1508 1510 left
+1508 1526 front
+1509 1511 right
+1509 1527 front
+1510 1512 left
+1510 1528 front
+1511 1529 front
+1512 1530 front
+1513 1514 right
+1513 1515 left
+1513 1531 back
+1514 1516 right
+1514 1532 back
+1515 1517 left
+1515 1533 back
+1516 1518 right
+1516 1534 back
+1517 1519 left
+1517 1535 back
+1518 1520 right
+1518 1536 back
+1519 1521 left
+1519 1537 back
+1520 1538 back
+1521 1539 back
+1522 1523 right
+1522 1524 left
+1523 1525 right
+1524 1526 left
+1525 1527 right
+1526 1528 left
+1527 1529 right
+1528 1530 left
+1531 1532 right
+1531 1533 left
+1532 1534 right
+1533 1535 left
+1534 1536 right
+1535 1537 left
+1536 1538 right
+1537 1539 left
+1540 1541 right
+1540 1542 left
+1540 1549 front
+1540 1558 back
+1541 1543 right
+1541 1550 front
+1541 1559 back
+1542 1544 left
+1542 1551 front
+1542 1560 back
+1543 1545 right
+1543 1552 front
+1543 1561 back
+1544 1546 left
+1544 1553 front
+1544 1562 back
+1545 1547 right
+1545 1554 front
+1545 1563 back
+1546 1548 left
+1546 1555 front
+1546 1564 back
+1547 1556 front
+1547 1565 back
+1548 1557 front
+1548 1566 back
+1549 1550 right
+1549 1551 left
+1549 1567 front
+1550 1552 right
+1550 1568 front
+1551 1553 left
+1551 1569 front
+1552 1554 right
+1552 1570 front
+1553 1555 left
+1553 1571 front
+1554 1556 right
+1554 1572 front
+1555 1557 left
+1555 1573 front
+1556 1574 front
+1557 1575 front
+1558 1559 right
+1558 1560 left
+1558 1576 back
+1559 1561 right
+1559 1577 back
+1560 1562 left
+1560 1578 back
+1561 1563 right
+1561 1579 back
+1562 1564 left
+1562 1580 back
+1563 1565 right
+1563 1581 back
+1564 1566 left
+1564 1582 back
+1565 1583 back
+1566 1584 back
+1567 1568 right
+1567 1569 left
+1567 1585 front
+1568 1570 right
+1568 1586 front
+1569 1571 left
+1569 1587 front
+1570 1572 right
+1570 1588 front
+1571 1573 left
+1571 1589 front
+1572 1574 right
+1572 1590 front
+1573 1575 left
+1573 1591 front
+1574 1592 front
+1575 1593 front
+1576 1577 right
+1576 1578 left
+1576 1594 back
+1577 1579 right
+1577 1595 back
+1578 1580 left
+1578 1596 back
+1579 1581 right
+1579 1597 back
+1580 1582 left
+1580 1598 back
+1581 1583 right
+1581 1599 back
+1582 1584 left
+1582 1600 back
+1583 1601 back
+1584 1602 back
+1585 1586 right
+1585 1587 left
+1585 1603 front
+1586 1588 right
+1586 1604 front
+1587 1589 left
+1587 1605 front
+1588 1590 right
+1588 1606 front
+1589 1591 left
+1589 1607 front
+1590 1592 right
+1590 1608 front
+1591 1593 left
+1591 1609 front
+1592 1610 front
+1593 1611 front
+1594 1595 right
+1594 1596 left
+1594 1612 back
+1595 1597 right
+1595 1613 back
+1596 1598 left
+1596 1614 back
+1597 1599 right
+1597 1615 back
+1598 1600 left
+1598 1616 back
+1599 1601 right
+1599 1617 back
+1600 1602 left
+1600 1618 back
+1601 1619 back
+1602 1620 back
+1603 1604 right
+1603 1605 left
+1604 1606 right
+1605 1607 left
+1606 1608 right
+1607 1609 left
+1608 1610 right
+1609 1611 left
+1612 1613 right
+1612 1614 left
+1613 1615 right
+1614 1616 left
+1615 1617 right
+1616 1618 left
+1617 1619 right
+1618 1620 left
