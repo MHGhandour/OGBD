@@ -32,5 +32,6 @@ for sim in [900]:
     #pltxz(MainPts[Gi_splash,:])
     np.save('Gi_splash'+str(sim)+'.npy',Gi_splash)
     te=time.time()
-    print('Simulation step:',sim,'Processed in',(te-t0)//60,'minutes')
+    print('Simulation step:',sim,'Processed in',(te-t0)//60,'minutes', (te-t0\
+          -(te-t0)//60)//1, 'seconds')
 
