@@ -14,7 +14,9 @@ import os.path
 print('\n CODE START .... ')
 from Functions import np,initialize,Progressive,LAPS,time,findlevel,remove_air
 #%% Main code
-for sim in [900]:
+for sim in np.loadtxt(open('Steps').readlines(),dtype=int)[:-1]:
+#This [:-1] is made so that the file Steps is written with a non relevant value at the end, this is done meanwhile i figure out how to load a file with a one item list in some cases, or a mutiple items list in other, in a common command line.
+    print('Processing Simlation ... ', sim)
     t0=time.time()
     #Variables are level,T1,T0,T3,P,U,V,W
     OriginalPts=np.load(os.path.expanduser('data-'+str(sim)+'.npy'));
