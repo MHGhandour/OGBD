@@ -42,7 +42,7 @@ then use this command to generate a .txt file :
 
 ## Move the .txt file to the post process directory
 
-`mv step-$STEP.txt ../../../..`
+`mv step-$STEP.txt ../../../../Inputs/'
 
 # No Oil
 This Gerris Flow Simulation file is a part of a study on the impact of small droplet (radius ~= 4 mm) on free surface. 
