@@ -36,7 +36,9 @@ at certain time, for staying in the same reference use :
 
 then use this command to generate a .txt file :
 
-`gerris3D -e "GfsOutputSimulation {istep =1 } step-900.txt { format = text variables = T1,T0,T3,P,U,W,V }" sim-900-0.590684 > /dev/null` 
+`gerris3D -e "GfsOutputSimulation {istep =1 } step-$STEP.txt { format = text variables = Level,T1,T0,T3,P,U,W,V }" sim-$STEP-* > /dev/null`
+
+*This order is for now standarized but it can be changed to be more customizable, if for urgent need you want to insert more variable, add them at the end* 
 
 ## Move the .txt file to the post process directory
 
