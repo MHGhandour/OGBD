@@ -4,7 +4,7 @@ import numpy as np
 ram=np.loadtxt(open('RAM').readlines(),dtype=float)
 ram=int(ram*128*1024*1024*1024)
 for i in np.loadtxt(open('Steps').readlines(),dtype=int)[:-1]:
-    f=open("step-"+str(i)+".txt","r");
+    f=open("../Inputs/step-"+str(i)+".txt","r");
     a=f.readlines(ram);
     data=np.loadtxt(a);
     while True:
@@ -34,4 +34,4 @@ for i in np.loadtxt(open('Steps').readlines(),dtype=int)[:-1]:
         
     data_final=np.append(data[:,[0,2,1,0,3,4]],data[:,6:],axis=1)    
     data_final[:,3]=0 #This is to be used later for levels
-    np.save('data-'+str(i)+'.npy',data_final);
+    np.save('Outputs/data-'+str(i)+'.npy',data_final);

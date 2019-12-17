@@ -1,4 +1,5 @@
-# shell script, compatible with bash and other versions
+#/bin/sh
+
 # Gerris Post Processing Conditions
 echo Hello .. 
 echo "How much Ram (in GB) is available in your machine?"
@@ -53,29 +54,23 @@ echo -1 >> Steps
 echo "End of Configuration"
 echo "removing the last build if made ... continue? (y/N)"
 read -r a
-if [ $a -eq y -o $a -eq Y]
-then
-        rm -rf build
-elif [ $a -eq n -o $a -eq N ]
-then
-        echo Existing ...
-        exit
-fi
+case $a in
+       [yY]) echo ; rm -rf build ;;
+       [nN]) echo Existing ... ; exit ;; 
+esac
+
 
 echo "building ...."
-mkidr build
+mkdir build
+mkdir build/Outputs
 cp src/*.py build/
-cd src
+mv RAM Steps build/
+cd build
 
 echo "Strat reading ? (y/N)"
-
 read -r a
-if [ $a -eq y -o $a -eq Y]
-then
-        python3 read.py
-elif [ $a -eq n -o $a -eq N ]
-then
-        echo Not reading, Using last data
-        exit
-fi
+case $a in
+     [yY]) echo ; python3 read.py ;;
+     [nN]) echo ; Not reading, Using last data ;;
+esac
 
