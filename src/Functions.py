@@ -8,8 +8,10 @@ from multiprocessing import Pool
 import numpy as np
 import os.path
 import time
-Gigs=65; #I suppose i have only 65GB to use
-max_ram=Gigs*1024*1024*1024;
+
+ram=np.loadtxt(open('RAM').readlines(),dtype=float)
+ram=int(ram*128*1024*1024*1024)
+
 RAM_constraint=0
 
 """ This Function will find the real level for the cell """
