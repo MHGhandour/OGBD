@@ -19,3 +19,6 @@ this will create to output files `MainPts.npy` and `Gi_Splash.npy`, they represe
 - Delete unwanted files:
 
 `rm data-900.npy`
+
+
+(not tested yet on numpy version 1.22)
